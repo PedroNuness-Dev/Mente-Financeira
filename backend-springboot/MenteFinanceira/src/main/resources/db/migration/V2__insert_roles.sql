@@ -1,0 +1,3 @@
+-- Inserir ROLES
+INSERT INTO tb_role(nome)
+VALUES ('ROLE_ADMIN'),('ROLE_USUARIO'),('ROLE_MODERADOR'),('ROLE_PLUS');
