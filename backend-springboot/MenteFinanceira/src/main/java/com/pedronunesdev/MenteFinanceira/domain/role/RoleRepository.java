@@ -1,7 +1,10 @@
-package PedroNunesDev.MenteFinanceira.repository;
+package com.pedronunesdev.MenteFinanceira.domain.role;
 
-import PedroNunesDev.MenteFinanceira.model.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Optional;
+
 public interface RoleRepository extends JpaRepository<Role,Long> {
+
+    Optional<Role> findByNome(EnumRole nome);
 }
