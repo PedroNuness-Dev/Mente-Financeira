@@ -29,6 +29,7 @@ public class MovimentacaoService {
 
     private final MovimentacaoRepository movimentacaoRepository;
 
+    // Metodo consumido pelo CarteiraService, pois uma movimentacao so é registrada com algum movimento na Carteira
     public MovimentacaoDTOResponse registrarMovimentacao(
             BigDecimal valorMovimentado,
             TipoMovimentacao tipoMovimentacao,

@@ -2,6 +2,7 @@ package com.pedronunesdev.MenteFinanceira.services.usuario;
 
 import com.pedronunesdev.MenteFinanceira.enums.role.EnumRole;
 import com.pedronunesdev.MenteFinanceira.domain.role.Role;
+import com.pedronunesdev.MenteFinanceira.exception.ResourceNotFoundException;
 import com.pedronunesdev.MenteFinanceira.repositories.role.RoleRepository;
 import com.pedronunesdev.MenteFinanceira.domain.usuario.Usuario;
 import com.pedronunesdev.MenteFinanceira.dto.usuario.UsuarioDTORequest;
@@ -25,14 +26,12 @@ public class UsuarioService {
     @Transactional
     public UsuarioDTOResponse cadastrarUsuario(UsuarioDTORequest request){
 
-        // TODO: adicionar tratamento de exceção
         if (usuarioRepository.findByEmail(request.email()).isPresent()) throw new IllegalArgumentException("Erro ao cadastrar usuário");
 
         log.info("Iniciando cadastro de usuário com email: [{}]", request.email());
 
-        // TODO: adicionar tratamento de exceção
         Role roleUsuario = roleRepository.findByNome(EnumRole.ROLE_USUARIO)
-                .orElseThrow(() -> new RuntimeException("Role não encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Role não encontrada"));
 
         Usuario usuarioParaSalvar = Usuario.builder()
                 .nome(request.nome())

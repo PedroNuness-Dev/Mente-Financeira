@@ -3,6 +3,7 @@ package com.pedronunesdev.MenteFinanceira.services.carteira;
 import com.pedronunesdev.MenteFinanceira.domain.carteira.*;
 import com.pedronunesdev.MenteFinanceira.dto.movimentacao.MovimentacaoDTOResponse;
 import com.pedronunesdev.MenteFinanceira.dto.carteira.*;
+import com.pedronunesdev.MenteFinanceira.exception.ResourceNotFoundException;
 import com.pedronunesdev.MenteFinanceira.repositories.carteira.CarteiraRepository;
 import com.pedronunesdev.MenteFinanceira.services.movimentacao.MovimentacaoService;
 import com.pedronunesdev.MenteFinanceira.enums.movimentacao.TipoMovimentacao;
@@ -28,7 +29,7 @@ public class CarteiraService {
     public CarteiraDTOResponse cadastrarCarteiraAoUsuario(CarteiraDTORequest request, Long idUsuario){
 
         Usuario usuario = usuarioRepository.findById(idUsuario)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
 
         Carteira carteiraParaSalvar = Carteira.builder()
                 .saldo(request.saldoInicial())
@@ -36,7 +37,12 @@ public class CarteiraService {
                 .build();
 
         MovimentacaoDTOResponse movimentacaoDTOResponse =
-                movimentacaoService.registrarMovimentacao(carteiraParaSalvar.getSaldo(), TipoMovimentacao.ENTRADA,"DEPOSITO" ,carteiraParaSalvar);
+                movimentacaoService.registrarMovimentacao(
+                        carteiraParaSalvar.getSaldo(),
+                        TipoMovimentacao.ENTRADA,
+                        "DEPOSITO" ,
+                        carteiraParaSalvar
+                );
 
         carteiraRepository.save(carteiraParaSalvar);
 
@@ -51,13 +57,18 @@ public class CarteiraService {
     public CarteiraDTOResponse depositarCarteira(DepositoCarteiraRequest request, Long idCarteira){
 
         Carteira carteira = carteiraRepository.findById(idCarteira)
-                .orElseThrow(() -> new RuntimeException("Carteira não encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Carteira não encontrada"));
 
         carteira.depositar(request.valorDeposito());
         carteiraRepository.save(carteira);
 
         MovimentacaoDTOResponse movimentacaoDTOResponse =
-                movimentacaoService.registrarMovimentacao(request.valorDeposito(), TipoMovimentacao.ENTRADA, request.categoriaMovimentacao(), carteira);
+                movimentacaoService.registrarMovimentacao(
+                        request.valorDeposito(),
+                        TipoMovimentacao.ENTRADA,
+                        request.categoriaMovimentacao(),
+                        carteira
+                );
 
         return new CarteiraDTOResponse(
                 carteira.getId(),
@@ -70,13 +81,18 @@ public class CarteiraService {
     public CarteiraDTOResponse saquarCarteira(SaqueCarteiraRequest request, Long idCarteira){
 
         Carteira carteira = carteiraRepository.findById(idCarteira)
-                .orElseThrow(() -> new RuntimeException("Carteira não encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Carteira não encontrada"));
 
         carteira.saquar(request.valorSaque());
         carteiraRepository.save(carteira);
 
         MovimentacaoDTOResponse movimentacaoDTOResponse =
-                movimentacaoService.registrarMovimentacao(request.valorSaque(), TipoMovimentacao.RETIRADA, request.categoriaMovimentacao(), carteira);
+                movimentacaoService.registrarMovimentacao(
+                        request.valorSaque(),
+                        TipoMovimentacao.RETIRADA,
+                        request.categoriaMovimentacao(),
+                        carteira
+                );
 
         return new CarteiraDTOResponse(
                 carteira.getId(),
