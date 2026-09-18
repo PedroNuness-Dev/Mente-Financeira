@@ -1,6 +1,8 @@
 package com.pedronunesdev.MenteFinanceira.domain.movimentacao;
 
 import com.pedronunesdev.MenteFinanceira.domain.carteira.Carteira;
+import com.pedronunesdev.MenteFinanceira.enums.movimentacao.CategoriaMovimentacao;
+import com.pedronunesdev.MenteFinanceira.enums.movimentacao.TipoMovimentacao;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;

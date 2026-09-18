@@ -1,7 +1,7 @@
 package com.pedronunesdev.MenteFinanceira.domain.role;
 
+import com.pedronunesdev.MenteFinanceira.enums.role.EnumRole;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
