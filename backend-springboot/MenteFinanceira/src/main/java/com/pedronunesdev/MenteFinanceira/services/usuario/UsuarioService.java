@@ -1,15 +1,16 @@
 package com.pedronunesdev.MenteFinanceira.services.usuario;
 
-import com.pedronunesdev.MenteFinanceira.enums.role.EnumRole;
 import com.pedronunesdev.MenteFinanceira.domain.role.Role;
-import com.pedronunesdev.MenteFinanceira.exception.ResourceNotFoundException;
-import com.pedronunesdev.MenteFinanceira.repositories.role.RoleRepository;
 import com.pedronunesdev.MenteFinanceira.domain.usuario.Usuario;
 import com.pedronunesdev.MenteFinanceira.dto.usuario.UsuarioDTORequest;
 import com.pedronunesdev.MenteFinanceira.dto.usuario.UsuarioDTOResponse;
+import com.pedronunesdev.MenteFinanceira.enums.role.EnumRole;
+import com.pedronunesdev.MenteFinanceira.exception.ResourceNotFoundException;
+import com.pedronunesdev.MenteFinanceira.repositories.role.RoleRepository;
 import com.pedronunesdev.MenteFinanceira.repositories.usuario.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +23,7 @@ public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
     private final RoleRepository roleRepository;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Transactional
     public UsuarioDTOResponse cadastrarUsuario(UsuarioDTORequest request){
@@ -36,7 +38,7 @@ public class UsuarioService {
         Usuario usuarioParaSalvar = Usuario.builder()
                 .nome(request.nome())
                 .email(request.email())
-                .senha(request.senha())
+                .senha(bCryptPasswordEncoder.encode(request.senha()))
                 .build();
 
         //Seta a Collection de Role para a de um usuário padrão
