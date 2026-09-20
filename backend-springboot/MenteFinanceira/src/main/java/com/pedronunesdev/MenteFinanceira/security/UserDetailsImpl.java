@@ -28,6 +28,7 @@ public class UserDetailsImpl implements UserDetails {
     private String nome;
     private String email;
     private String senha;
+    private int anoCriacaoUsuario;
 
     private Collection<? extends SimpleGrantedAuthority> authorities;
 
@@ -43,6 +44,7 @@ public class UserDetailsImpl implements UserDetails {
                 usuario.getNome(),
                 usuario.getEmail(),
                 usuario.getSenha(),
+                usuario.getDataCriacao().getYear(),
                 authorities
         );
     }

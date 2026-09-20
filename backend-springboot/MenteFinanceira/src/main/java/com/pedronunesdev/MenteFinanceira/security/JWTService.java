@@ -38,6 +38,7 @@ public class JWTService {
                 .subject(userDetails.getUsername()) // Email do usuário
                 .claim("id", userDetails.getId())
                 .claim("nome", userDetails.getNome())
+                .claim("anoCriacao", userDetails.getAnoCriacaoUsuario())
                 .issuedAt(Date.from(agora))
                 .expiration(Date.from(expiracao))
                 .compact();
