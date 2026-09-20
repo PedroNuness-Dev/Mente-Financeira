@@ -1,8 +1,10 @@
 package com.pedronunesdev.MenteFinanceira.services.auth;
 
+import com.pedronunesdev.MenteFinanceira.domain.usuario.Usuario;
 import com.pedronunesdev.MenteFinanceira.dto.auth.JWTCreateResponse;
 import com.pedronunesdev.MenteFinanceira.dto.auth.LoginRequestDTO;
 import com.pedronunesdev.MenteFinanceira.dto.auth.LoginResponseDTO;
+import com.pedronunesdev.MenteFinanceira.exception.ResourceNotFoundException;
 import com.pedronunesdev.MenteFinanceira.repositories.usuario.UsuarioRepository;
 import com.pedronunesdev.MenteFinanceira.security.JWTService;
 import com.pedronunesdev.MenteFinanceira.security.UserDetailsImpl;
@@ -23,8 +25,11 @@ public class AuthenticationService {
 
     private final JWTService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final UsuarioRepository usuarioRepository;
 
     public LoginResponseDTO autenticarUsuario(LoginRequestDTO requestDTO){
+
+        log.info("Iniciando processo de autenticação do usuário com email [{}]", requestDTO.email());
 
         Authentication authentication = authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(requestDTO.email(),requestDTO.senha()));
@@ -35,6 +40,8 @@ public class AuthenticationService {
 
         JWTCreateResponse tokenJWT = jwtService.gerarJWT(userDetails);
 
+        log.info("Autenticação realizada com sucesso");
+
         return new LoginResponseDTO(
                 tokenJWT.token(),
                 "Bearer",
@@ -43,5 +50,36 @@ public class AuthenticationService {
                 userDetails.getNome(),
                 userDetails.getEmail()
         );
+    }
+
+    public Usuario me(){
+
+        UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        return usuarioRepository.findByEmail(userDetails.getEmail())
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário autenticado não encontrado"));
+    }
+
+    public Long extrairIdDoUsuarioAutenticado(){
+
+        UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        return userDetails.getId();
+    }
+
+    public int extrairAnoCriacaoUsuarioAutenticado(){
+
+        UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        return userDetails.getAnoCriacaoUsuario();
     }
 }
