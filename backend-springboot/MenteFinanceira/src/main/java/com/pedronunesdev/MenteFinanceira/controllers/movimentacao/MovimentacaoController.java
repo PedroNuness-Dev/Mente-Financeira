@@ -9,8 +9,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -22,18 +22,18 @@ public class MovimentacaoController {
     private final MovimentacaoService movimentacaoService;
 
     @GetMapping
-    public ResponseEntity<Page<MovimentacaoDTOResponse>> buscarHistoricoMovimentacoes(@RequestParam Long idUsuario, Pageable pageable){
+    public ResponseEntity<Page<MovimentacaoDTOResponse>> buscarHistoricoMovimentacoes(Pageable pageable){
 
-        Page<MovimentacaoDTOResponse> page = movimentacaoService.buscarHistoricoMovimentacao(idUsuario,pageable);
+        Page<MovimentacaoDTOResponse> page = movimentacaoService.buscarHistoricoMovimentacao(pageable);
 
         return ResponseEntity.ok(page);
     }
 
-    @GetMapping("/porcentagem")
+    @GetMapping("/{mes}/{ano}/porcentagem")
     public ResponseEntity<AnaliseMovimentacaoCategoriaDTOResponse> buscarPorcentagesPorCategoriaMovimentacao(
-            @RequestParam Long idUsuario, @RequestParam Integer mes, @RequestParam Integer ano){
+            @PathVariable Integer mes, @PathVariable Integer ano){
 
-        AnaliseMovimentacaoCategoriaDTOResponse response = movimentacaoService.buscarPorcentagensPorCategoriaMovimentacao(idUsuario,mes,ano);
+        AnaliseMovimentacaoCategoriaDTOResponse response = movimentacaoService.buscarPorcentagensPorCategoriaMovimentacao(mes,ano);
 
         return ResponseEntity.ok(response);
     }

@@ -5,7 +5,8 @@ import java.util.List;
 
 public record AnaliseMovimentacaoCategoriaDTOResponse(
         BigDecimal totalMovimentado,
-        Integer mesAnalisado,
+        String mesAnalisado,
+        Integer anoAnalisado,
         List<CategoriaMovimentacaoPercentualDTOResponse> movimentacoes
 ) {
 }

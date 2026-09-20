@@ -63,4 +63,17 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         );
         return new ResponseEntity<>(response, httpStatus);
     }
+
+    // Exceções de argumentos ilegais
+    @ExceptionHandler(CarteiraDoUsuarioJaExistenteException.class)
+    public final ResponseEntity<ExceptionResponse> handleCarteiraDoUsuarioJaExistenteException(CarteiraDoUsuarioJaExistenteException ex, WebRequest request){
+        HttpStatus httpStatus = HttpStatus.CONFLICT;
+        ExceptionResponse response = new ExceptionResponse(
+                LocalDateTime.now(),
+                httpStatus.value(),
+                ex.getMessage(),
+                request.getDescription(false)
+        );
+        return new ResponseEntity<>(response,httpStatus);
+    }
 }

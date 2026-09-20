@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/movimentacao/categoria")
+@RequestMapping("api/movimentacoes/categorias")
 @RequiredArgsConstructor
 @Tag(name = "Categoria Movimentacao Controller", description = "Responsável pelas ações relacioandas as categorias das movimentações")
 public class CategoriaMovimentacaoController {

@@ -14,7 +14,7 @@ public interface CarteiraRepository extends JpaRepository<Carteira,Long> {
     SELECT c FROM Carteira c
        WHERE c.usuario.id = :id_usuario
 """)
-    Optional<Carteira> findByUsuarioID(@Param("id_usuario") Long idUsuario);
+    Optional<Carteira> buscarCarteiraPeloIdDoUsuario(@Param("id_usuario") Long idUsuario);
 
     @Query("""
     SELECT c.saldo FROM Carteira c
