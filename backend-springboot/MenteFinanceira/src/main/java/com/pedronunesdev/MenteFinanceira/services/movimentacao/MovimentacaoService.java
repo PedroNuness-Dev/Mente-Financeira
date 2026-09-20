@@ -8,6 +8,7 @@ import com.pedronunesdev.MenteFinanceira.dto.movimentacao.CategoriaTotalDTO;
 import com.pedronunesdev.MenteFinanceira.dto.movimentacao.MovimentacaoDTOResponse;
 import com.pedronunesdev.MenteFinanceira.enums.movimentacao.CategoriaMovimentacao;
 import com.pedronunesdev.MenteFinanceira.enums.movimentacao.TipoMovimentacao;
+import com.pedronunesdev.MenteFinanceira.repositories.carteira.CarteiraRepository;
 import com.pedronunesdev.MenteFinanceira.repositories.movimentacao.MovimentacaoRepository;
 import com.pedronunesdev.MenteFinanceira.services.auth.AuthenticationService;
 import lombok.RequiredArgsConstructor;
@@ -34,15 +35,20 @@ public class MovimentacaoService {
 
     private final MovimentacaoRepository movimentacaoRepository;
     private final AuthenticationService authenticationService;
+    private final CarteiraRepository carteiraRepository;
 
     // Metodo consumido pelo CarteiraService, pois uma movimentacao so é registrada com algum movimento na Carteira
     public MovimentacaoDTOResponse registrarMovimentacao(
             BigDecimal valorMovimentado,
             TipoMovimentacao tipoMovimentacao,
-            String categoriaMovimentacao, // Passando string pois vem junto com a requisição para ser passado para o ENUM
+            String categoriaMovimentacao,
             Carteira carteira
     ){
-        CategoriaMovimentacao categoriaMovimentacaoEncontrada = CategoriaMovimentacao.from(categoriaMovimentacao); // Busco o ENUM de categoria
+        log.info("Registrando movimentação. tipo={}, categoria={}, carteiraId={}",
+                tipoMovimentacao, categoriaMovimentacao, carteira.getId());
+        log.debug("Valor da movimentação a registrar: {}", valorMovimentado);
+
+        CategoriaMovimentacao categoriaMovimentacaoEncontrada = CategoriaMovimentacao.from(categoriaMovimentacao);
 
         Movimentacao movimentacaoParaSalvar = Movimentacao.builder()
                 .valorMovimentado(valorMovimentado)
@@ -51,14 +57,17 @@ public class MovimentacaoService {
                 .carteira(carteira)
                 .build();
 
-        movimentacaoRepository.save(movimentacaoParaSalvar);
+        Movimentacao movimentacaoSalva = movimentacaoRepository.save(movimentacaoParaSalvar);
+
+        log.info("Movimentação registrada com sucesso. movimentacaoId={}, carteiraId={}",
+                movimentacaoSalva.getId(), carteira.getId());
 
         return new MovimentacaoDTOResponse(
-                movimentacaoParaSalvar.getId(),
-                movimentacaoParaSalvar.getValorMovimentado(),
-                movimentacaoParaSalvar.getDataDeExecucao(),
-                movimentacaoParaSalvar.getTipoMovimentacao(),
-                movimentacaoParaSalvar.getCategoriaMovimentacao()
+                movimentacaoSalva.getId(),
+                movimentacaoSalva.getValorMovimentado(),
+                movimentacaoSalva.getDataDeExecucao(),
+                movimentacaoSalva.getTipoMovimentacao(),
+                movimentacaoSalva.getCategoriaMovimentacao()
         );
     }
 
@@ -66,48 +75,106 @@ public class MovimentacaoService {
 
         Long idUsuario = authenticationService.extrairIdDoUsuarioAutenticado();
 
-        Page<MovimentacaoDTOResponse> page = movimentacaoRepository.historicoMovimentacoes(idUsuario,pageable);
+        log.info("Buscando histórico de movimentações. usuarioId={}, página={}, tamanho={}",
+                idUsuario, pageable.getPageNumber(), pageable.getPageSize());
+
+        Page<MovimentacaoDTOResponse> page = movimentacaoRepository.historicoMovimentacoes(idUsuario, pageable);
+
+        log.info("Histórico retornado. usuarioId={}, registrosNaPágina={}, totalDeRegistros={}",
+                idUsuario, page.getNumberOfElements(), page.getTotalElements());
 
         return page;
     }
 
-    public AnaliseMovimentacaoCategoriaDTOResponse buscarPorcentagensPorCategoriaMovimentacao(Integer mes, Integer ano){
+    public AnaliseMovimentacaoCategoriaDTOResponse analisarMovimentacaosPeloMes(Integer mes, Integer ano){
 
-        verificarPeriodo(mes,ano);
+        log.info("Iniciando análise de movimentações. mes={}, ano={}", mes, ano);
 
-        LocalDateTime diaPrimeiro = LocalDateTime.of(ano, mes, 1,0,0);
+        verificarPeriodo(mes, ano);
+
+        LocalDateTime diaPrimeiro = LocalDateTime.of(ano, mes, 1, 0, 0);
         LocalDateTime diaUltimo = diaPrimeiro.with(TemporalAdjusters.lastDayOfMonth()).with(LocalTime.MAX);
+
+        String nomeMesAtual = diaPrimeiro.getMonth().getDisplayName(TextStyle.FULL, Locale.of("pt", "BR"));
+
+        LocalDateTime dataDaAnalise = LocalDateTime.now();
 
         Long idUsuario = authenticationService.extrairIdDoUsuarioAutenticado();
 
-        // Lista das categorias de movimentações e seus respectivos valores movimentados
-        List<CategoriaTotalDTO> totaisMovimentacoesMovimentado = movimentacaoRepository.totalPorCategoria(idUsuario,diaPrimeiro,diaUltimo);
+        List<CategoriaTotalDTO> totaisMovimentadosPorCategoria =
+                movimentacaoRepository.totalPorCategoria(idUsuario, diaPrimeiro, diaUltimo);
 
-        // Pega o total de valores movimentados de todas as categorias, para realizar o cálculo de porcentagem
-        BigDecimal totalGeral = totaisMovimentacoesMovimentado
-                .stream()
-                .map(CategoriaTotalDTO::totalMovimentado)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        log.info("Categorias encontradas na consulta: {}", totaisMovimentadosPorCategoria.size());
 
-        List<CategoriaMovimentacaoPercentualDTOResponse> movimentacaoPercentualDTOResponses = totaisMovimentacoesMovimentado.stream()
+        if (totaisMovimentadosPorCategoria.isEmpty()) {
+            log.info("Nenhuma movimentação encontrada. usuarioId={}, periodo={}/{}", idUsuario, mes, ano);
+        }
+
+        BigDecimal totalGeral = somarTotais(totaisMovimentadosPorCategoria, null);
+        BigDecimal totalRetirada = somarTotais(totaisMovimentadosPorCategoria, TipoMovimentacao.RETIRADA);
+        BigDecimal totalEntrada = somarTotais(totaisMovimentadosPorCategoria, TipoMovimentacao.ENTRADA);
+
+        log.debug("Totais calculados. usuarioId={}, geral={}, entrada={}, retirada={}",
+                idUsuario, totalGeral, totalEntrada, totalRetirada);
+
+        BigDecimal saldoAtual = carteiraRepository.consultarSaldo(idUsuario);
+
+        List<CategoriaMovimentacaoPercentualDTOResponse> movimentacaoPercentualDTOResponses = totaisMovimentadosPorCategoria.stream()
                 .map(totalDTO -> {
-                    BigDecimal porcentagem = totalGeral.compareTo(BigDecimal.ZERO) == 0
-                            ? BigDecimal.ZERO
-                            : totalDTO.totalMovimentado()
-                            .multiply(BigDecimal.valueOf(100))
-                            .divide(totalGeral, 2, RoundingMode.HALF_UP);
+
+                    BigDecimal totalDoTipo = totalDTO.tipoMovimentacao() == TipoMovimentacao.RETIRADA
+                            ? totalRetirada
+                            : totalEntrada;
+
+                    BigDecimal porcentagem;
+                    if (totalDoTipo.compareTo(BigDecimal.ZERO) == 0) {
+                        log.warn("Total do tipo {} é zero; porcentagem da categoria {} definida como 0. usuarioId={}",
+                                totalDTO.tipoMovimentacao(), totalDTO.categoria(), idUsuario);
+                        porcentagem = BigDecimal.ZERO;
+                    } else {
+                        porcentagem = totalDTO.totalMovimentado()
+                                .multiply(BigDecimal.valueOf(100))
+                                .divide(totalDoTipo, 2, RoundingMode.HALF_UP);
+                    }
+
                     return new CategoriaMovimentacaoPercentualDTOResponse(
                             totalDTO.categoria(),
+                            totalDTO.tipoMovimentacao(),
                             totalDTO.totalMovimentado(),
                             porcentagem
                     );
                 })
                 .toList();
 
-        String nomeMesAtual = diaPrimeiro.getMonth()
-                .getDisplayName(TextStyle.FULL, Locale.of("pt","BR"));
+        log.info("Análise concluída. usuarioId={}, periodo={}/{}, categorias={}",
+                idUsuario, mes, ano, movimentacaoPercentualDTOResponses.size());
 
-        return new AnaliseMovimentacaoCategoriaDTOResponse(totalGeral, nomeMesAtual, ano ,movimentacaoPercentualDTOResponses);
+        return new AnaliseMovimentacaoCategoriaDTOResponse(
+                totalGeral,
+                totalEntrada,
+                totalRetirada,
+                saldoAtual,
+                nomeMesAtual,
+                ano,
+                dataDaAnalise,
+                movimentacaoPercentualDTOResponses
+        );
+    }
+
+    private BigDecimal somarTotais(List<CategoriaTotalDTO> totaisMovimentadosPorCategoria, TipoMovimentacao tipoMovimentacao){
+        if (tipoMovimentacao != null){
+            return totaisMovimentadosPorCategoria
+                    .stream()
+                    .filter(movimentacao -> movimentacao.tipoMovimentacao() == tipoMovimentacao)
+                    .map(CategoriaTotalDTO::totalMovimentado)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+        }
+        else {
+            return totaisMovimentadosPorCategoria
+                    .stream()
+                    .map(CategoriaTotalDTO::totalMovimentado)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+        }
     }
 
     private void verificarPeriodo(Integer mes, Integer ano){
@@ -117,26 +184,31 @@ public class MovimentacaoService {
 
         YearMonth periodoSolicitado = YearMonth.of(ano, mes);
         if (periodoSolicitado.isAfter(YearMonth.now())) {
+            log.warn("Período solicitado está no futuro: {}/{}", mes, ano);
             throw new IllegalArgumentException("O período solicitado está no futuro.");
         }
+
+        log.debug("Período validado: {}/{}", mes, ano);
     }
 
-    private Integer verificarMes(Integer mes){
-
-        if (mes < 1 || mes > 12) {
+    private void verificarMes(Integer mes){
+        if (mes == null || mes < 1 || mes > 12) {
+            log.warn("Mês inválido recebido: {}", mes);
             throw new IllegalArgumentException("Mês inválido. O valor deve estar entre 1 e 12.");
         }
-        return mes;
     }
 
     private void verificarAno(Integer ano){
 
-        int anoCriacaoUsuario = authenticationService.extrairAnoCriacaoUsuarioAutenticado(); // Pega o ano de criação do usuário para usar como validação na busca
+        int anoCriacaoUsuario = authenticationService.extrairAnoCriacaoUsuarioAutenticado();
 
         if (ano == null){
+            log.warn("Ano nulo recebido na busca de movimentações");
             throw new IllegalArgumentException("O ano para busca não pode ser nulo");
         }
-        if (ano < anoCriacaoUsuario ||ano > Year.now().getValue()){
+        if (ano < anoCriacaoUsuario || ano > Year.now().getValue()){
+            log.warn("Ano fora do intervalo permitido. ano={}, anoCriacaoUsuario={}, anoAtual={}",
+                    ano, anoCriacaoUsuario, Year.now().getValue());
             throw new IllegalArgumentException("Ano para busca inválido, o ano não pode ser no futuro nem antes da data de criação do usuário.");
         }
     }

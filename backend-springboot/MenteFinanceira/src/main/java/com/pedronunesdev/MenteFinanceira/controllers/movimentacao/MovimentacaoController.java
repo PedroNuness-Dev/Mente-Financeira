@@ -33,7 +33,7 @@ public class MovimentacaoController {
     public ResponseEntity<AnaliseMovimentacaoCategoriaDTOResponse> buscarPorcentagesPorCategoriaMovimentacao(
             @PathVariable Integer mes, @PathVariable Integer ano){
 
-        AnaliseMovimentacaoCategoriaDTOResponse response = movimentacaoService.buscarPorcentagensPorCategoriaMovimentacao(mes,ano);
+        AnaliseMovimentacaoCategoriaDTOResponse response = movimentacaoService.analisarMovimentacaosPeloMes(mes,ano);
 
         return ResponseEntity.ok(response);
     }

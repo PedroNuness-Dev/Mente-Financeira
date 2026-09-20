@@ -24,12 +24,12 @@ public interface MovimentacaoRepository extends JpaRepository<Movimentacao,Long>
     @Query("""
     SELECT
         m.categoriaMovimentacao,
+        m.tipoMovimentacao,
         SUM(m.valorMovimentado)
     FROM Movimentacao m
     WHERE m.carteira.usuario.id = :id
-    AND m.tipoMovimentacao = 'RETIRADA'
     AND m.dataDeExecucao BETWEEN :diaPrimeiro AND :diaUltimo
-    GROUP BY m.categoriaMovimentacao
+    GROUP BY m.categoriaMovimentacao, m.tipoMovimentacao
     ORDER BY SUM(m.valorMovimentado) DESC
 """)
     List<CategoriaTotalDTO> totalPorCategoria(@Param("id") Long idUsuario, @Param("diaPrimeiro") LocalDateTime diaPrimeiro, @Param("diaUltimo") LocalDateTime diaUltimo);
