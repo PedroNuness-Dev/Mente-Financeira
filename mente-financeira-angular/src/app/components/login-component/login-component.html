@@ -1,0 +1,95 @@
+<header class="login-header">
+  <h2>Seja bem-vindo(a)!</h2>
+  <p>Faça seu login e continue cuidando do seu futuro financeiro.</p>
+</header>
+
+<form class="login-form" #loginForm="ngForm" (keydown.enter)="login(loginForm)">
+  <div class="field">
+    <label for="email">E-mail</label>
+    <div class="input-wrapper" [class.invalid]="mostrarErro(emailCtrl)">
+      <!-- ícone de envelope -->
+      <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect width="20" height="16" x="2" y="4" rx="2" />
+        <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+      </svg>
+      <input
+        id="email"
+        name="email"
+        type="email"
+        placeholder="seu@email.com"
+        autocomplete="email"
+        [(ngModel)]="email"
+        #emailCtrl="ngModel"
+        required
+        email
+        pattern="[^\s@]+@[^\s@]+\.[^\s@]+"
+        [attr.aria-invalid]="mostrarErro(emailCtrl)"
+        aria-describedby="email-erro"
+      />
+    </div>
+    @if (mostrarErro(emailCtrl)) {
+      <span id="email-erro" class="error" role="alert">
+        @if (emailCtrl.errors?.['required']) {
+          Informe seu e-mail.
+        } @else {
+          Digite um e-mail válido, como nome@email.com.
+        }
+      </span>
+    }
+  </div>
+
+  <div class="field">
+    <label for="senha">Senha</label>
+    <div class="input-wrapper password-wrapper" [class.invalid]="mostrarErro(senhaCtrl)">
+      <!-- ícone de cadeado -->
+      <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+      </svg>
+      <input
+        id="senha"
+        name="senha"
+        [type]="showPassword() ? 'text' : 'password'"
+        placeholder="Digite sua senha"
+        autocomplete="current-password"
+        [(ngModel)]="senha"
+        #senhaCtrl="ngModel"
+        required
+        [attr.aria-invalid]="mostrarErro(senhaCtrl)"
+        aria-describedby="senha-erro"
+      />
+      <button
+        type="button"
+        class="toggle-password"
+        (click)="togglePassword()"
+        [attr.aria-label]="showPassword() ? 'Ocultar senha' : 'Mostrar senha'"
+      >
+        @if (showPassword()) {
+          <!-- olho aberto: senha visível -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" />
+            <circle cx="12" cy="12" r="3" />
+          </svg>
+        } @else {
+          <!-- olho riscado: senha oculta -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
+            <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" />
+            <path d="M6.61 6.61A13.53 13.53 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" />
+            <line x1="2" x2="22" y1="2" y2="22" />
+          </svg>
+        }
+      </button>
+    </div>
+    @if (mostrarErro(senhaCtrl)) {
+      <span id="senha-erro" class="error" role="alert">Informe sua senha.</span>
+    }
+    <a class="forgot">Esqueceu sua senha?</a>
+  </div>
+
+  <button type="button" class="btn btn-primary" (click)="login(loginForm)">Entrar</button>
+</form>
+
+<div class="divider"><span>ou</span></div>
+
+<a class="btn btn-outline" routerLink="/auth/cadastro">Criar conta</a>
