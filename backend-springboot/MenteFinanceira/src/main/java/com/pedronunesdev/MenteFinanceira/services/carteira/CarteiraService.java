@@ -31,9 +31,14 @@ public class CarteiraService {
 
         Usuario usuario = authenticationService.me();
 
+        log.info("Iniciando cadastro de carteira. usuarioId={}", usuario.getId());
+
         if (carteiraRepository.buscarCarteiraPeloIdDoUsuario(usuario.getId()).isPresent()){
+            log.warn("Tentativa de cadastrar segunda carteira. usuarioId={}", usuario.getId());
             throw new CarteiraDoUsuarioJaExistenteException("O usuário pode ter apenas uma carteira");
         }
+
+        log.info("Saldo inicial da carteira: {}. usuarioId={}", request.saldoInicial(), usuario.getId());
 
         Carteira carteiraParaSalvar = Carteira.builder()
                 .saldo(request.saldoInicial())
@@ -42,6 +47,8 @@ public class CarteiraService {
 
         carteiraRepository.save(carteiraParaSalvar);
 
+        log.debug("Carteira salva. carteiraId={}, usuarioId={}", carteiraParaSalvar.getId(), usuario.getId());
+
         MovimentacaoDTOResponse movimentacaoDTOResponse =
                 movimentacaoService.registrarMovimentacao(
                         carteiraParaSalvar.getSaldo(),
@@ -49,6 +56,9 @@ public class CarteiraService {
                         "DEPOSITO" ,
                         carteiraParaSalvar
                 );
+
+        log.info("Carteira cadastrada com sucesso. carteiraId={}, usuarioId={}, movimentacaoId={}",
+                carteiraParaSalvar.getId(), usuario.getId(), movimentacaoDTOResponse.id());
 
         return new CarteiraDTOResponse(
                 carteiraParaSalvar.getId(),
@@ -62,8 +72,14 @@ public class CarteiraService {
 
         Long idUsuario = authenticationService.extrairIdDoUsuarioAutenticado();
 
+        log.info("Iniciando depósito. usuarioId={}, categoria={}", idUsuario, request.categoriaMovimentacao());
+        log.info("Valor do depósito: {}. usuarioId={}", request.valorDeposito(), idUsuario);
+
         Carteira carteira = carteiraRepository.buscarCarteiraPeloIdDoUsuario(idUsuario)
-                .orElseThrow(() -> new ResourceNotFoundException("O usuário não possui uma carteira!"));
+                .orElseThrow(() -> {
+                    log.warn("Depósito recusado: usuário sem carteira. usuarioId={}", idUsuario);
+                    return new ResourceNotFoundException("O usuário não possui uma carteira!");
+                });
 
         carteira.depositar(request.valorDeposito());
         carteiraRepository.save(carteira);
@@ -75,6 +91,9 @@ public class CarteiraService {
                         request.categoriaMovimentacao(),
                         carteira
                 );
+
+        log.info("Depósito realizado com sucesso. carteiraId={}, usuarioId={}, movimentacaoId={}",
+                carteira.getId(), idUsuario, movimentacaoDTOResponse.id());
 
         return new CarteiraDTOResponse(
                 carteira.getId(),
@@ -88,8 +107,14 @@ public class CarteiraService {
 
         Long idUsuario = authenticationService.extrairIdDoUsuarioAutenticado();
 
+        log.info("Iniciando saque. usuarioId={}, categoria={}", idUsuario, request.categoriaMovimentacao());
+        log.info("Valor do saque: {}. usuarioId={}", request.valorSaque(), idUsuario);
+
         Carteira carteira = carteiraRepository.buscarCarteiraPeloIdDoUsuario(idUsuario)
-                .orElseThrow(() -> new ResourceNotFoundException("O usuário não possui uma carteira!"));
+                .orElseThrow(() -> {
+                    log.warn("Saque recusado: usuário sem carteira. usuarioId={}", idUsuario);
+                    return new ResourceNotFoundException("O usuário não possui uma carteira!");
+                });
 
         carteira.saquar(request.valorSaque());
         carteiraRepository.save(carteira);
@@ -102,6 +127,9 @@ public class CarteiraService {
                         carteira
                 );
 
+        log.info("Saque realizado com sucesso. carteiraId={}, usuarioId={}, movimentacaoId={}",
+                carteira.getId(), idUsuario, movimentacaoDTOResponse.id());
+
         return new CarteiraDTOResponse(
                 carteira.getId(),
                 carteira.getSaldo(),
@@ -113,7 +141,11 @@ public class CarteiraService {
 
         Long idUsuario = authenticationService.extrairIdDoUsuarioAutenticado();
 
-        BigDecimal saldoBuscado = carteiraRepository.constultarSaldo(idUsuario);
+        log.info("Consultando saldo. usuarioId={}", idUsuario);
+
+        BigDecimal saldoBuscado = carteiraRepository.consultarSaldo(idUsuario);
+
+        log.info("Saldo consultado: {}. usuarioId={}", saldoBuscado, idUsuario);
 
         return new SaldoDTOResponse(saldoBuscado);
     }

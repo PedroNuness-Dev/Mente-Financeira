@@ -20,5 +20,5 @@ public interface CarteiraRepository extends JpaRepository<Carteira,Long> {
     SELECT c.saldo FROM Carteira c
        WHERE c.usuario.id = :id_usuario
 """)
-    BigDecimal constultarSaldo(@Param("id_usuario") Long idUsuario);
+    BigDecimal consultarSaldo(@Param("id_usuario") Long idUsuario);
 }
