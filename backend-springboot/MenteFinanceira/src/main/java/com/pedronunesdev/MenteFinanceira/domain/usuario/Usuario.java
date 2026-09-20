@@ -5,8 +5,10 @@ import com.pedronunesdev.MenteFinanceira.domain.role.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -37,6 +39,11 @@ public class Usuario implements Serializable {
     @NotBlank
     @Column(nullable = false)
     private String senha;
+
+    @CreationTimestamp
+    @Column(name = "data_criacao", nullable = false)
+    @Builder.Default
+    private LocalDateTime dataCriacao = LocalDateTime.now();
 
     @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL)
     private Carteira carteira;

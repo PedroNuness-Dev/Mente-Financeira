@@ -10,6 +10,7 @@ CREATE TABLE tb_usuario (
                             nome VARCHAR(255) NOT NULL,
                             email VARCHAR(255) NOT NULL,
                             senha VARCHAR(255) NOT NULL,
+                            data_criacao TIMESTAMP NOT NULL,
                             CONSTRAINT uk_usuario_email UNIQUE (email)
 );
 
