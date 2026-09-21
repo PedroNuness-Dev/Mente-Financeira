@@ -183,3 +183,40 @@
   font-size: 0.75rem;
   color: var(--danger);
 }
+
+.alert-erro {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  background-color: #fdecea;
+  border: 1px solid #f5c2c0;
+  color: #b3261e;
+  font-size: 0.9rem;
+  line-height: 1.3;
+  margin-bottom: 1rem;
+  margin-top: 1rem;
+  animation: shake-in 0.3s ease-out;
+
+  svg {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+@keyframes shake-in {
+  0% {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  60% {
+    opacity: 1;
+    transform: translateX(-3px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

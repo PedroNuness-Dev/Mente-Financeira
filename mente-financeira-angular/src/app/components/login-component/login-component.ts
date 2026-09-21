@@ -18,6 +18,7 @@ export class LoginComponent {
   senha = '';
   showPassword = signal(false);
   enviado = signal(false);
+  erroLogin = signal<string | null>(null);
   loginRequest : LoginRequest | null = null;
 
   togglePassword() {
@@ -31,6 +32,7 @@ export class LoginComponent {
 
   login(form: NgForm) {
     this.enviado.set(true);
+    this.erroLogin.set(null);
 
     if (form.invalid) {
       return;
@@ -43,8 +45,13 @@ export class LoginComponent {
 
     this.authService.login(this.loginRequest)
     .subscribe({
-      next: () => {console.log("Login efetuado com sucesso!")},
-      error: (err) => {console.log(err)}
+      next: () => {
+        console.log("Login efetuado com sucesso!")
+      },
+      error: (err) => {
+        console.log(err);
+        this.erroLogin.set('E-mail ou senha inválidos.');
+      }
     })
   }
 }
