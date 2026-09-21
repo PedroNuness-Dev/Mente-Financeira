@@ -17,7 +17,7 @@ public interface MovimentacaoRepository extends JpaRepository<Movimentacao,Long>
     @Query("""
     SELECT m FROM Movimentacao m
     WHERE m.carteira.usuario.id = :id
-    ORDER BY dataDeExecucao DESC
+    ORDER BY m.dataDeExecucao DESC
 """)
     Page<MovimentacaoDTOResponse> historicoMovimentacoes(@Param("id") Long idUsuario, Pageable pageable);
 
