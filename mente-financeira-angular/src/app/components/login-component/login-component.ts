@@ -1,6 +1,8 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule, NgForm, NgModel } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { AuthService } from '../../services/auth/auth-service';
+import { LoginRequest } from '../../interfaces/auth/LoginRequest';
 
 @Component({
   selector: 'app-login-component',
@@ -10,10 +12,13 @@ import { RouterLink } from '@angular/router';
 })
 export class LoginComponent {
 
+  authService = inject(AuthService);
+
   email = '';
   senha = '';
   showPassword = signal(false);
   enviado = signal(false);
+  loginRequest : LoginRequest | null = null;
 
   togglePassword() {
     this.showPassword.update((value) => !value);
@@ -31,11 +36,15 @@ export class LoginComponent {
       return;
     }
 
-    const credenciais = {
+    this.loginRequest = {
       email: this.email,
       senha: this.senha,
     };
 
-    console.log('Enviando login para o backend:', credenciais);
+    this.authService.login(this.loginRequest)
+    .subscribe({
+      next: () => {console.log("Login efetuado com sucesso!")},
+      error: (err) => {console.log(err)}
+    })
   }
 }

@@ -1,6 +1,8 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule, NgForm, NgModel } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { UsuarioService } from '../../services/usuario/usuario-service';
+import { UsuarioRequest } from '../../interfaces/usuario/UsuarioRequest';
 
 @Component({
   selector: 'app-cadastro-component',
@@ -10,6 +12,11 @@ import { RouterLink } from '@angular/router';
 })
 export class CadastroComponent {
 
+  usuarioService = inject(UsuarioService);
+  router = inject(Router);
+
+  novoUsuario : UsuarioRequest | null = null;
+
   nome = '';
   email = '';
   senha = '';
@@ -18,6 +25,7 @@ export class CadastroComponent {
   enviado = signal(false);
   senhaFocada = signal(false);
   confirmarFocada = signal(false);
+  sucesso = signal(false);
 
   togglePassword() {
     this.showPassword.update((value) => !value);
@@ -51,12 +59,21 @@ export class CadastroComponent {
       return;
     }
 
-    const novoUsuario = {
+    this.novoUsuario = {
       nome: this.nome,
       email: this.email,
       senha: this.senha,
     };
 
-    console.log('Enviando cadastro para o backend:', novoUsuario);
+    this.usuarioService.cadastrarUsuario(this.novoUsuario)
+      .subscribe({
+        next: () => {
+          this.sucesso.set(true);
+          setTimeout(() => {
+            this.router.navigate(['auth/login']);
+          }, 2000); // espera 2s antes de redirecionar
+        },
+        error: (err) => console.log(err)
+      });
   }
 }
