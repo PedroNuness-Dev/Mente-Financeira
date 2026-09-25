@@ -1,5 +1,8 @@
 export interface UsuarioResponse{
     id : number,
-    nome : string,
-    email : string
+    name : string,
+    email : string,
+    creationDate : string,
+    updateDate : string,
+    firstLogin : boolean
 }

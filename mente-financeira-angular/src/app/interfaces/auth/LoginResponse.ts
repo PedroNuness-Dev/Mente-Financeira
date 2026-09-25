@@ -1,8 +1,8 @@
 export interface LoginResponse{
     token : string,
-    tipo : string,
-    expiraEm : string,
-    idUsuario : number,
-    nome : string,
+    type : string,
+    expiresAt : string,
+    userId : number,
+    name : string,
     email : string
 }
