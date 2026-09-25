@@ -5,6 +5,7 @@ import { LoginResponse } from '../../interfaces/auth/LoginResponse';
 import { tap } from 'rxjs';
 
 const TOKEN_KEY = 'token';
+const EXPIRE_AT = 'expire_at';
 
 @Injectable({
   providedIn: 'root',
@@ -16,7 +17,12 @@ export class AuthService {
 
   login(loginRequest : LoginRequest){
     return this.httpClient.post<LoginResponse>(`${this.url}/api/auth/login`, loginRequest)
-    .pipe(tap(res => localStorage.setItem(TOKEN_KEY, res.token)));
+    .pipe(
+      tap(res => {
+        localStorage.setItem(TOKEN_KEY, res.token);
+        localStorage.setItem(EXPIRE_AT, res.expiresAt);
+      })
+    )
   }
 
   getToken(): string | null {
@@ -24,10 +30,28 @@ export class AuthService {
   }
 
   isLoggedIn(): boolean {
-    return !!this.getToken();
+    return !!this.getToken() && !this.isTokenExpirado();
   }
 
   logout() {
     localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(EXPIRE_AT);
+  }
+
+  isTokenExpirado(){
+
+    const expire_at = localStorage.getItem(EXPIRE_AT);
+
+    if (!expire_at) {
+      return true;
+    }
+
+    const expire_at_converted = new Date(expire_at);
+
+    if (new Date() > expire_at_converted){
+      return true;
+    }
+
+    return false;
   }
 }
