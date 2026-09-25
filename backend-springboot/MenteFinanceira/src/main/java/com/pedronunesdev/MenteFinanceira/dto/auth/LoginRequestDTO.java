@@ -6,6 +6,6 @@ public record LoginRequestDTO(
         @NotBlank
         String email,
         @NotBlank
-        String senha
+        String password
 ) {
 }

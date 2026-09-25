@@ -1,11 +1,11 @@
 package com.pedronunesdev.MenteFinanceira.services.auth;
 
-import com.pedronunesdev.MenteFinanceira.domain.usuario.Usuario;
+import com.pedronunesdev.MenteFinanceira.domain.user.User;
 import com.pedronunesdev.MenteFinanceira.dto.auth.JWTCreateResponse;
 import com.pedronunesdev.MenteFinanceira.dto.auth.LoginRequestDTO;
 import com.pedronunesdev.MenteFinanceira.dto.auth.LoginResponseDTO;
 import com.pedronunesdev.MenteFinanceira.exception.ResourceNotFoundException;
-import com.pedronunesdev.MenteFinanceira.repositories.usuario.UsuarioRepository;
+import com.pedronunesdev.MenteFinanceira.repositories.user.UserRepository;
 import com.pedronunesdev.MenteFinanceira.security.JWTService;
 import com.pedronunesdev.MenteFinanceira.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
@@ -25,45 +25,45 @@ public class AuthenticationService {
 
     private final JWTService jwtService;
     private final AuthenticationManager authenticationManager;
-    private final UsuarioRepository usuarioRepository;
+    private final UserRepository userRepository;
 
-    public LoginResponseDTO autenticarUsuario(LoginRequestDTO requestDTO){
+    public LoginResponseDTO authenticateUser(LoginRequestDTO requestDTO){
 
-        log.info("Iniciando processo de autenticação do usuário com email [{}]", requestDTO.email());
+        log.info("Starting authentication process for user with email [{}]", requestDTO.email());
 
         Authentication authentication = authenticationManager
-                .authenticate(new UsernamePasswordAuthenticationToken(requestDTO.email(),requestDTO.senha()));
+                .authenticate(new UsernamePasswordAuthenticationToken(requestDTO.email(),requestDTO.password()));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         UserDetailsImpl userDetails = (UserDetailsImpl) Objects.requireNonNull(authentication.getPrincipal());
 
-        JWTCreateResponse tokenJWT = jwtService.gerarJWT(userDetails);
+        JWTCreateResponse jwtToken = jwtService.generateJWT(userDetails);
 
-        log.info("Autenticação realizada com sucesso");
+        log.info("Authentication completed successfully");
 
         return new LoginResponseDTO(
-                tokenJWT.token(),
+                jwtToken.token(),
                 "Bearer",
-                tokenJWT.expiracao(),
+                jwtToken.expiration(),
                 userDetails.getId(),
-                userDetails.getNome(),
+                userDetails.getName(),
                 userDetails.getEmail()
         );
     }
 
-    public Usuario me(){
+    public User me(){
 
         UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder
                 .getContext()
                 .getAuthentication()
                 .getPrincipal();
 
-        return usuarioRepository.findByEmail(userDetails.getEmail())
-                .orElseThrow(() -> new ResourceNotFoundException("Usuário autenticado não encontrado"));
+        return userRepository.findByEmail(userDetails.getEmail())
+                .orElseThrow(() -> new ResourceNotFoundException("Authenticated user not found"));
     }
 
-    public Long extrairIdDoUsuarioAutenticado(){
+    public Long extractAuthenticatedUserId(){
 
         UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder
                 .getContext()
@@ -73,13 +73,13 @@ public class AuthenticationService {
         return userDetails.getId();
     }
 
-    public int extrairAnoCriacaoUsuarioAutenticado(){
+    public int extractAuthenticatedUserCreationYear(){
 
         UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder
                 .getContext()
                 .getAuthentication()
                 .getPrincipal();
 
-        return userDetails.getAnoCriacaoUsuario();
+        return userDetails.getUserCreationYear();
     }
 }

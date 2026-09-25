@@ -27,26 +27,26 @@ public class JWTService {
         return Keys.hmacShaKeyFor(keySecret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public JWTCreateResponse gerarJWT(UserDetailsImpl userDetails){
+    public JWTCreateResponse generateJWT(UserDetailsImpl userDetails){
 
-        Instant agora = Instant.now();
-        Instant expiracao = agora.plus(2, ChronoUnit.HOURS);
+        Instant now = Instant.now();
+        Instant expiration = now.plus(2, ChronoUnit.HOURS);
 
         String token = Jwts.builder()
                 .issuer(issuer)
                 .signWith(getSigningKey())
-                .subject(userDetails.getUsername()) // Email do usuário
+                .subject(userDetails.getUsername()) // User's email
                 .claim("id", userDetails.getId())
-                .claim("nome", userDetails.getNome())
-                .claim("anoCriacao", userDetails.getAnoCriacaoUsuario())
-                .issuedAt(Date.from(agora))
-                .expiration(Date.from(expiracao))
+                .claim("name", userDetails.getName())
+                .claim("creationYear", userDetails.getUserCreationYear())
+                .issuedAt(Date.from(now))
+                .expiration(Date.from(expiration))
                 .compact();
 
-        return new JWTCreateResponse(expiracao,token);
+        return new JWTCreateResponse(expiration, token);
     }
 
-    public String validarJWTEObterSubject(String token){
+    public String validateJWTAndGetSubject(String token){
 
         Claims claims = Jwts.parser()
                 .verifyWith(getSigningKey())
@@ -57,7 +57,7 @@ public class JWTService {
         return claims.getSubject();
     }
 
-    public boolean isJWTValido(String token){
+    public boolean isJWTValid(String token){
         try{
             Jwts.parser()
                     .verifyWith(getSigningKey())

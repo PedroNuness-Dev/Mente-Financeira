@@ -4,10 +4,10 @@ import java.time.Instant;
 
 public record LoginResponseDTO(
         String token,
-        String tipo, // "Bearer"
-        Instant expiraEm,
-        Long idUsuario,
-        String nome,
+        String type, // "Bearer"
+        Instant expiresAt,
+        Long userId,
+        String name,
         String email
 ) {
 }

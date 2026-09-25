@@ -1,7 +1,8 @@
 package com.pedronunesdev.MenteFinanceira.security;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.pedronunesdev.MenteFinanceira.domain.usuario.Usuario;
+import com.pedronunesdev.MenteFinanceira.domain.user.User;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.jspecify.annotations.Nullable;
@@ -14,8 +15,8 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * Representação de detalhes do usuário autenticado.
- * Esta classe é utilizada para armazenar as informações do usuário após a autenticação.
+ * Representation of the authenticated user's details.
+ * This class is used to store the user's information after authentication.
  */
 @AllArgsConstructor
 @Getter
@@ -25,26 +26,27 @@ public class UserDetailsImpl implements UserDetails {
     private static final long serialVersionUID = 1L;
 
     private Long id;
-    private String nome;
+    private String name;
     private String email;
-    private String senha;
-    private int anoCriacaoUsuario;
+    @Getter(AccessLevel.NONE)
+    private String password;
+    private int userCreationYear;
 
     private Collection<? extends SimpleGrantedAuthority> authorities;
 
-    public static UserDetails buildUserDetailsByUsuario(Usuario usuario){
+    public static UserDetails buildUserDetailsFromUser(User user){
 
-        List<SimpleGrantedAuthority> authorities = usuario.getRoles()
+        List<SimpleGrantedAuthority> authorities = user.getRoles()
                 .stream()
-                .map(role -> new SimpleGrantedAuthority(role.getNome().name()))
+                .map(role -> new SimpleGrantedAuthority(role.getName().name()))
                 .toList();
 
         return new UserDetailsImpl(
-                usuario.getId(),
-                usuario.getNome(),
-                usuario.getEmail(),
-                usuario.getSenha(),
-                usuario.getDataCriacao().getYear(),
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getPassword(),
+                user.getCreationDate().getYear(),
                 authorities
         );
     }
@@ -57,7 +59,7 @@ public class UserDetailsImpl implements UserDetails {
     @Override
     @JsonIgnore
     public @Nullable String getPassword() {
-        return senha;
+        return password;
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.pedronunesdev.MenteFinanceira.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
@@ -65,9 +66,22 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     // Exceções de argumentos ilegais
-    @ExceptionHandler(CarteiraDoUsuarioJaExistenteException.class)
-    public final ResponseEntity<ExceptionResponse> handleCarteiraDoUsuarioJaExistenteException(CarteiraDoUsuarioJaExistenteException ex, WebRequest request){
+    @ExceptionHandler(WalletAlreadyExistsException.class)
+    public final ResponseEntity<ExceptionResponse> handleCarteiraDoUsuarioJaExistenteException(WalletAlreadyExistsException ex, WebRequest request){
         HttpStatus httpStatus = HttpStatus.CONFLICT;
+        ExceptionResponse response = new ExceptionResponse(
+                LocalDateTime.now(),
+                httpStatus.value(),
+                ex.getMessage(),
+                request.getDescription(false)
+        );
+        return new ResponseEntity<>(response,httpStatus);
+    }
+
+    // Exceções de argumentos ilegais
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public final ResponseEntity<ExceptionResponse> handleUsernameNotFoundException(UsernameNotFoundException ex, WebRequest request){
+        HttpStatus httpStatus = HttpStatus.UNAUTHORIZED;
         ExceptionResponse response = new ExceptionResponse(
                 LocalDateTime.now(),
                 httpStatus.value(),

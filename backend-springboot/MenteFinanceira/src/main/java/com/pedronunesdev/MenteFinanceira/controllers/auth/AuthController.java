@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
-@Tag(name = "Auth Controller", description = "Responsável pela parte de autenticação do usuário")
+@Tag(name = "Auth Controller", description = "Responsible for the user authentication flow")
 public class AuthController {
 
     private final AuthenticationService authenticationService;
@@ -23,7 +23,7 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> login(@RequestBody @Valid LoginRequestDTO requestDTO){
 
-        LoginResponseDTO loginResponseDTO = authenticationService.autenticarUsuario(requestDTO);
+        LoginResponseDTO loginResponseDTO = authenticationService.authenticateUser(requestDTO);
 
         return ResponseEntity.ok(loginResponseDTO);
     }

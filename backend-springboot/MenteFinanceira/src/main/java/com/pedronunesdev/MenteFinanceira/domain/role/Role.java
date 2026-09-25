@@ -1,6 +1,6 @@
 package com.pedronunesdev.MenteFinanceira.domain.role;
 
-import com.pedronunesdev.MenteFinanceira.enums.role.EnumRole;
+import com.pedronunesdev.MenteFinanceira.enums.role.RoleType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,10 +17,10 @@ public class Role {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_role")
+    @Column(name = "role_id")
     private Long id;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private EnumRole nome;
+    private RoleType name;
 }
