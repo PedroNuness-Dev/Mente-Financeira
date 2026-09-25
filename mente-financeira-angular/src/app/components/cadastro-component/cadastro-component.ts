@@ -60,9 +60,9 @@ export class CadastroComponent {
     }
 
     this.novoUsuario = {
-      nome: this.nome,
+      name: this.nome,
       email: this.email,
-      senha: this.senha,
+      password: this.senha,
     };
 
     this.usuarioService.cadastrarUsuario(this.novoUsuario)
@@ -70,7 +70,7 @@ export class CadastroComponent {
         next: () => {
           this.sucesso.set(true);
           setTimeout(() => {
-            this.router.navigate(['auth/login']);
+            this.router.navigate(['/auth/login']);
           }, 2000); // espera 2s antes de redirecionar
         },
         error: (err) => console.log(err)

@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule, NgForm, NgModel } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth/auth-service';
 import { LoginRequest } from '../../interfaces/auth/LoginRequest';
 
@@ -13,6 +13,7 @@ import { LoginRequest } from '../../interfaces/auth/LoginRequest';
 export class LoginComponent {
 
   authService = inject(AuthService);
+  router = inject(Router);
 
   email = '';
   senha = '';
@@ -40,13 +41,14 @@ export class LoginComponent {
 
     this.loginRequest = {
       email: this.email,
-      senha: this.senha,
+      password: this.senha,
     };
 
     this.authService.login(this.loginRequest)
     .subscribe({
       next: () => {
-        console.log("Login efetuado com sucesso!")
+        console.log("Login efetuado com sucesso!");
+        this.router.navigate(["/home"])
       },
       error: (err) => {
         console.log(err);

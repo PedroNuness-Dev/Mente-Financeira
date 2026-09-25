@@ -1,1 +1,52 @@
-<p>home-component works!</p>
+@if (usuario(); as u) {
+  <header class="hero">
+    @if (u.firstLogin) {
+      <span class="hero__badge">Novo por aqui</span>
+    }
+    <h1 class="hero__titulo">{{ saudacao }}, {{ primeiroNome }}</h1>
+    <p class="hero__email">{{ u.email }}</p>
+  </header>
+
+  @if (u.firstLogin) {
+    <section class="convite">
+      <div class="convite__ilustracao">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M3 12l3-3 4 4 8-8 3 3" />
+          <path d="M3 20h18" />
+        </svg>
+      </div>
+
+      <div class="convite__conteudo">
+        <h2>Vamos configurar sua carteira</h2>
+        <p>Leva menos de um minuto: você informa o saldo inicial e já entende como o app organiza suas finanças.</p>
+
+        <ul class="convite__lista">
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l4 4 10-10" /></svg>
+            Conheça as 3 áreas do app
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l4 4 10-10" /></svg>
+            Informe seu saldo atual
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l4 4 10-10" /></svg>
+            Comece a acompanhar seu mês
+          </li>
+        </ul>
+      </div>
+
+      <button class="convite__botao" (click)="mostrarOnboarding.set(true)">
+        Começar
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+      </button>
+    </section>
+  }
+}
+
+@if (mostrarOnboarding()) {
+  <app-onboarding-component
+    (concluido)="finalizarOnboarding($event)"
+    (fechado)="mostrarOnboarding.set(false)"
+  />
+}
