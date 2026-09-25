@@ -1,0 +1,11 @@
+:host { display: block; }
+
+.em-construcao {
+  h1 {    
+    font-size: 1.75rem;
+    font-weight: 500;
+    margin: 0 0 0.5rem;
+    color: var(--ink);
+  }
+  p { color: var(--ink-soft); margin: 0; }
+}
