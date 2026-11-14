@@ -16,12 +16,12 @@ export class UsuarioService {
   readonly usuario = this.usuarioAtual.asReadonly();
 
   cadastrarUsuario(usuarioRequest: UsuarioRequest) {
-    return this.httpClient.post<UsuarioResponse>(`${this.url}/api/users/register`, usuarioRequest);
+    return this.httpClient.post<UsuarioResponse>(`${this.url}/api/users`, usuarioRequest);
   }
 
   buscarPerfilDoUsuarioAutenticado() {
     return this.httpClient
-      .get<UsuarioResponse>(`${this.url}/api/users/profile`)
+      .get<UsuarioResponse>(`${this.url}/api/users/me`)
       .pipe(tap((res) => this.usuarioAtual.set(res)));
   }
 }
