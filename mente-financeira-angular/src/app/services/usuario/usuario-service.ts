@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { tap } from 'rxjs';
+import { API_URL } from '../../api';
 import { UsuarioRequest } from '../../interfaces/usuario/UsuarioRequest';
 import { UsuarioResponse } from '../../interfaces/usuario/UsuarioResponse';
 
@@ -10,7 +11,7 @@ import { UsuarioResponse } from '../../interfaces/usuario/UsuarioResponse';
 export class UsuarioService {
   
   private httpClient = inject(HttpClient);
-  private url = 'http://localhost:8080';
+  private url = API_URL;
 
   private usuarioAtual = signal<UsuarioResponse | null>(null);
   readonly usuario = this.usuarioAtual.asReadonly();
