@@ -100,6 +100,30 @@ describe('NovaMovimentacaoComponent', () => {
     expect(valores).not.toContain('MERCADO');
   });
 
+  it('os atalhos somam ao valor e o botão de zerar limpa', async () => {
+    await criar('ENTRADA');
+    component.somar(50);
+    component.somar(10);
+    expect(component.centavos()).toBe(6000);
+    component.zerar();
+    expect(component.centavos()).toBe(0);
+  });
+
+  it('calcula o saldo depois do depósito e da retirada', async () => {
+    await criar('ENTRADA', 100);
+    component.centavos.set(2550);
+    expect(component.saldoDepois()).toBe(125.5);
+
+    fixture.componentRef.setInput('tipo', 'RETIRADA');
+    expect(component.saldoDepois()).toBe(74.5);
+  });
+
+  it('mostra a categoria escolhida no resumo', async () => {
+    await criar('RETIRADA');
+    component.form.controls.categoria.setValue('SAUDE');
+    expect(component.categoriaSelecionada()?.rotulo).toBe('Saúde');
+  });
+
   it('mostra a mensagem de erro quando o backend recusa', async () => {
     await criar('ENTRADA');
     preencher(1000, 'SALARIO', 'salário');

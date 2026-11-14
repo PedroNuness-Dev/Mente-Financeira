@@ -12,13 +12,14 @@ import {
 } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { Observable } from 'rxjs';
 import { CarteiraService } from '../../services/carteira/carteira-service';
 import { CarteiraResponse } from '../../interfaces/carteira/Carteira';
 import { TipoMovimentacao } from '../../interfaces/movimentacao/Movimentacao';
 import { CATEGORIAS_ENTRADA, CATEGORIAS_SAIDA, rotuloCategoria } from '../../utils/categorias';
 import { iconeCategoria } from '../../utils/icones-categoria';
-import { centavosParaTexto, extrairCentavos } from '../../utils/moeda';
+import { centavosParaTexto, extrairCentavos, MAX_CENTAVOS } from '../../utils/moeda';
 import { mensagemErroMovimentacao } from '../../utils/mensagens-erro';
 import { formatarMoeda } from '../../utils/formatar-moeda';
 
@@ -73,6 +74,15 @@ export class NovaMovimentacaoComponent {
   });
 
   readonly maxDescricao = MAX_DESCRICAO;
+  /** Atalhos que somam ao valor digitado (em reais). */
+  readonly atalhos = [10, 50, 100, 500];
+
+  private readonly categoriaAtual = toSignal(this.form.controls.categoria.valueChanges, { initialValue: '' });
+  private readonly descricaoAtual = toSignal(this.form.controls.descricao.valueChanges, { initialValue: '' });
+  readonly tamanhoDescricao = computed(() => this.descricaoAtual().length);
+  readonly categoriaSelecionada = computed(() => this.categorias().find((c) => c.valor === this.categoriaAtual()) ?? null);
+  /** Muda a cada alteração do valor, para a animação de "pulso" tocar de novo. */
+  readonly pulsos = signal(0);
   readonly entrada = computed(() => this.tipo() === 'ENTRADA');
   readonly categorias = computed(() =>
     (this.entrada() ? CATEGORIAS_ENTRADA : CATEGORIAS_SAIDA).map((valor) => ({ valor, rotulo: rotuloCategoria(valor), icone: iconeCategoria(valor) })),
@@ -85,13 +95,22 @@ export class NovaMovimentacaoComponent {
   readonly valorValido = computed(() => this.centavos() >= VALOR_MINIMO_CENTAVOS);
   readonly mostrarErroValor = computed(() => this.tentouSalvar() && !this.valorValido());
 
+  /** Saldo depois da movimentação (null quando não sabemos o saldo atual). */
+  readonly saldoDepois = computed(() => {
+    const saldo = this.saldoAtual();
+    if (saldo === null) return null;
+    const valor = this.centavos() / 100;
+    return this.entrada() ? saldo + valor : saldo - valor;
+  });
+
   /** Saldo depois da retirada, quando ficaria negativo (o aviso não bloqueia o envio). */
   readonly saldoNegativo = computed(() => {
-    const saldo = this.saldoAtual();
-    if (this.entrada() || saldo === null || !this.valorValido()) return null;
-    const depois = saldo - this.centavos() / 100;
+    const depois = this.saldoDepois();
+    if (this.entrada() || depois === null || !this.valorValido()) return null;
     return depois < 0 ? formatarMoeda(depois) : null;
   });
+
+  readonly formatarMoeda = formatarMoeda;
 
   constructor() {
     afterNextRender(() => {
@@ -114,6 +133,20 @@ export class NovaMovimentacaoComponent {
     this.centavos.set(extrairCentavos(campo.value));
     campo.value = this.valorTexto();
     this.erro.set(null);
+  }
+
+  /** Soma um atalho ao valor atual (respeitando o máximo aceito). */
+  somar(reais: number): void {
+    if (this.enviando()) return;
+    this.centavos.update((c) => Math.min(c + reais * 100, MAX_CENTAVOS));
+    this.pulsos.update((n) => n + 1);
+    this.erro.set(null);
+  }
+
+  zerar(): void {
+    if (this.enviando()) return;
+    this.centavos.set(0);
+    this.campoValor().nativeElement.focus();
   }
 
   campoInvalido(nome: 'categoria' | 'descricao'): boolean {
