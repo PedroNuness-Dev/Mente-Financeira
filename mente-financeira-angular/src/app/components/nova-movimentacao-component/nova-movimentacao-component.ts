@@ -17,6 +17,7 @@ import { CarteiraService } from '../../services/carteira/carteira-service';
 import { CarteiraResponse } from '../../interfaces/carteira/Carteira';
 import { TipoMovimentacao } from '../../interfaces/movimentacao/Movimentacao';
 import { CATEGORIAS_ENTRADA, CATEGORIAS_SAIDA, rotuloCategoria } from '../../utils/categorias';
+import { iconeCategoria } from '../../utils/icones-categoria';
 import { centavosParaTexto, extrairCentavos } from '../../utils/moeda';
 import { mensagemErroMovimentacao } from '../../utils/mensagens-erro';
 import { formatarMoeda } from '../../utils/formatar-moeda';
@@ -74,7 +75,7 @@ export class NovaMovimentacaoComponent {
   readonly maxDescricao = MAX_DESCRICAO;
   readonly entrada = computed(() => this.tipo() === 'ENTRADA');
   readonly categorias = computed(() =>
-    (this.entrada() ? CATEGORIAS_ENTRADA : CATEGORIAS_SAIDA).map((valor) => ({ valor, rotulo: rotuloCategoria(valor) })),
+    (this.entrada() ? CATEGORIAS_ENTRADA : CATEGORIAS_SAIDA).map((valor) => ({ valor, rotulo: rotuloCategoria(valor), icone: iconeCategoria(valor) })),
   );
   readonly categoriasFiltradas = computed(() => {
     const termo = normalizar(this.busca());

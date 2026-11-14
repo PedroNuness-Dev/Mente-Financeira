@@ -78,7 +78,14 @@
         @for (categoria of categoriasFiltradas(); track categoria.valor) {
           <label class="opcao">
             <input type="radio" formControlName="categoria" [value]="categoria.valor" />
-            <span>{{ categoria.rotulo }}</span>
+            <span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                @for (traco of categoria.icone; track $index) {
+                  <path [attr.d]="traco" />
+                }
+              </svg>
+              {{ categoria.rotulo }}
+            </span>
           </label>
         } @empty {
           <p class="opcoes__vazio">Nenhuma categoria com “{{ busca() }}”.</p>
