@@ -9,11 +9,12 @@
   background: none;
   color: var(--ink);
   overflow: visible;
-  animation: entra var(--dur-slow) var(--ease-spring);
+  animation: entra var(--dur-slower) var(--ease-spring);
 
   &::backdrop {
     background: rgba(10, 20, 16, 0.6);
-    animation: mf-fade-in var(--dur-base) var(--ease-out);
+    backdrop-filter: blur(6px);
+    animation: mf-fade-in var(--dur-slow) var(--ease-out);
   }
 
   &--fechando {
@@ -41,13 +42,34 @@
 .lateral {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1.5rem;
   padding: 1.75rem 1.5rem 0;
+  overflow: hidden;
   background: linear-gradient(165deg, #1a5a41, #12211c 70%);
   color: #fff;
 
-  &__logo {
-    width: 9.5rem;
+  &__cabeca {
+    animation: mf-drop-in var(--dur-slow) var(--ease-out) 150ms backwards;
+  }
+
+  &__selo {
+    display: inline-block;
+    padding: 0.25rem 0.65rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 99px;
+    color: var(--accent-gold);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  &__titulo {
+    margin-top: 0.7rem;
+    font-size: 1.15rem;
+    font-weight: 800;
+    line-height: 1.25;
+    letter-spacing: -0.015em;
   }
 
   &__mascote {
@@ -55,14 +77,37 @@
     height: auto;
     margin-top: auto;
     translate: 0 8%;
+    animation: mascote-entra var(--dur-slower) var(--ease-spring) 250ms backwards,
+      mf-float 5s ease-in-out 1s infinite;
   }
 }
 
 .etapas {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 1rem;
   list-style: none;
+
+  /* Linha que liga as etapas e vai se enchendo conforme o progresso */
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    left: calc(0.875rem - 1px);
+    top: 0.875rem;
+    bottom: 0.875rem;
+    width: 2px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.15);
+  }
+
+  &::after {
+    background: var(--primary-light);
+    transform-origin: top;
+    transform: scaleY(var(--progresso, 0));
+    transition: transform var(--dur-slower) var(--ease-spring);
+  }
 }
 
 .etapa {
@@ -74,8 +119,17 @@
   color: rgba(255, 255, 255, 0.55);
   transition: color var(--dur-base) var(--ease-out);
 
+  position: relative;
+  z-index: 1;
+  animation: mf-rise var(--dur-slow) var(--ease-out) backwards;
+
+  &:nth-child(1) { animation-delay: 200ms; }
+  &:nth-child(2) { animation-delay: 280ms; }
+  &:nth-child(3) { animation-delay: 360ms; }
+
   &__numero {
     display: grid;
+    background: #12211c;
     place-items: center;
     width: 1.75rem;
     height: 1.75rem;
@@ -83,10 +137,12 @@
     border-radius: 50%;
     font-size: 0.78rem;
     font-weight: 800;
-    transition: background-color var(--dur-base) var(--ease-out);
+    transition: background-color var(--dur-base) var(--ease-out), transform var(--dur-slow) var(--ease-spring);
 
     svg {
       width: 0.85rem;
+      stroke-dasharray: 24;
+      animation: desenhar var(--dur-slow) var(--ease-out);
     }
   }
 
@@ -100,6 +156,80 @@
     border-color: var(--primary-light);
     background: var(--primary-light);
     color: #12211c;
+  }
+
+  &--ativa &__numero {
+    transform: scale(1.12);
+    animation: pulso 2.2s ease-out infinite;
+  }
+
+  &__nome {
+    transition: transform var(--dur-base) var(--ease-spring);
+  }
+
+  &--ativa &__nome {
+    transform: translateX(3px);
+  }
+}
+
+/* Dica do passo atual */
+.dica {
+  display: flex;
+  gap: 0.7rem;
+  padding: 0.85rem 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.06);
+  animation: dica-troca var(--dur-slow) var(--ease-spring);
+
+  &__icone {
+    width: 1.2rem;
+    height: 1.2rem;
+    flex-shrink: 0;
+    color: var(--accent-gold);
+    animation: mf-pop var(--dur-slow) var(--ease-bounce) 120ms backwards;
+  }
+
+  &__titulo {
+    font-size: 0.85rem;
+    font-weight: 700;
+  }
+
+  &__texto {
+    margin-top: 0.15rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.78rem;
+    line-height: 1.45;
+  }
+}
+
+.garantias {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  list-style: none;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 0.76rem;
+  animation: mf-fade-in var(--dur-slow) var(--ease-out) 450ms backwards;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  svg {
+    width: 0.95rem;
+    height: 0.95rem;
+    flex-shrink: 0;
+    color: var(--primary-light);
+  }
+}
+
+@keyframes dica-troca {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.97);
   }
 }
 
@@ -158,7 +288,15 @@
   flex-direction: column;
   gap: 1rem;
   margin-top: 0.75rem;
-  animation: mf-rise var(--dur-slow) var(--ease-out);
+
+  /* Entra pelo lado de onde o usuário "veio", e os filhos chegam em cascata */
+  &--frente > * { animation: passo-frente var(--dur-slow) var(--ease-out) backwards; }
+  &--tras > * { animation: passo-tras var(--dur-slow) var(--ease-out) backwards; }
+
+  > :nth-child(2) { animation-delay: 60ms; }
+  > :nth-child(3) { animation-delay: 120ms; }
+  > :nth-child(4) { animation-delay: 180ms; }
+  > :nth-child(5) { animation-delay: 240ms; }
 
   &__titulo {
     font-size: clamp(1.5rem, 3vw, 1.9rem);
@@ -183,6 +321,17 @@
   .mf-stat {
     box-shadow: none;
     font-size: 0.85rem;
+    animation: mf-rise var(--dur-slow) var(--ease-spring) backwards;
+    transition: transform var(--dur-base) var(--ease-spring), border-color var(--dur-base) var(--ease-out);
+
+    &:nth-child(1) { animation-delay: 200ms; }
+    &:nth-child(2) { animation-delay: 290ms; }
+    &:nth-child(3) { animation-delay: 380ms; }
+
+    &:hover {
+      transform: translateY(-4px) rotate(-0.6deg);
+      border-color: var(--tom);
+    }
   }
 
   strong {
@@ -261,19 +410,186 @@
   font-size: 0.85rem;
   font-weight: 700;
   cursor: pointer;
-  transition: border-color var(--dur-fast) var(--ease-out), background-color var(--dur-fast) var(--ease-out);
+  transition: border-color var(--dur-fast) var(--ease-out), background-color var(--dur-fast) var(--ease-out),
+    transform var(--dur-base) var(--ease-spring);
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.94);
+  }
 
   &:hover:not(:disabled),
   &--ativa {
     border-color: var(--primary-light);
     background: var(--accent-green-bg);
   }
+
+  &--ativa {
+    animation: sugestao-escolhida var(--dur-slow) var(--ease-spring);
+  }
+}
+
+/* Lista do passo 2: itens chegam um a um */
+.mf-lista__item {
+  animation: passo-frente var(--dur-slow) var(--ease-out) backwards;
+
+  &:nth-child(1) { animation-delay: 160ms; }
+  &:nth-child(2) { animation-delay: 240ms; }
+  &:nth-child(3) { animation-delay: 320ms; }
+}
+
+/* ---------- Comemoração ---------- */
+.comemoracao {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  text-align: center;
+  animation: mf-fade-in var(--dur-base) var(--ease-out);
+
+  &__selo {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 6.5rem;
+    height: 6.5rem;
+    margin-bottom: 1rem;
+  }
+
+  &__check {
+    width: 100%;
+    height: 100%;
+    animation: mf-pop var(--dur-slower) var(--ease-bounce);
+
+    circle {
+      stroke: var(--primary-light);
+      stroke-width: 3;
+      fill: var(--accent-green-bg);
+      stroke-dasharray: 151;
+      stroke-dashoffset: 151;
+      animation: tracar 600ms var(--ease-out) 100ms forwards;
+    }
+
+    path {
+      stroke: var(--primary-light);
+      stroke-width: 4;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-dasharray: 40;
+      stroke-dashoffset: 40;
+      animation: tracar 380ms var(--ease-out) 550ms forwards;
+    }
+  }
+
+  &__titulo {
+    font-size: clamp(1.6rem, 3vw, 2rem);
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    animation: mf-rise var(--dur-slow) var(--ease-spring) 500ms backwards;
+  }
+
+  &__texto {
+    color: var(--ink-soft);
+    animation: mf-rise var(--dur-slow) var(--ease-out) 650ms backwards;
+
+    strong {
+      color: var(--ink);
+    }
+  }
+}
+
+.confete {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0.5rem;
+  height: 0.8rem;
+  margin: -0.4rem 0 0 -0.25rem;
+  border-radius: 2px;
+  background: var(--cor);
+  opacity: 0;
+  animation: confete 1100ms var(--ease-out) 450ms forwards;
+
+  &:nth-child(3n) {
+    height: 0.5rem;
+    border-radius: 50%;
+  }
+}
+
+@keyframes passo-frente {
+  from {
+    opacity: 0;
+    transform: translateX(28px);
+  }
+}
+
+@keyframes passo-tras {
+  from {
+    opacity: 0;
+    transform: translateX(-28px);
+  }
+}
+
+@keyframes mascote-entra {
+  from {
+    opacity: 0;
+    transform: translateY(40px) scale(0.9);
+  }
+}
+
+@keyframes pulso {
+  0% { box-shadow: 0 0 0 0 rgba(120, 200, 150, 0.55); }
+  70%,
+  100% { box-shadow: 0 0 0 10px rgba(120, 200, 150, 0); }
+}
+
+@keyframes desenhar {
+  from { stroke-dashoffset: 24; }
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes tracar {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes sugestao-escolhida {
+  40% { transform: scale(1.08); }
+}
+
+@keyframes confete {
+  0% {
+    opacity: 1;
+    transform: rotate(var(--angulo)) translateY(0) scale(0.4);
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(var(--angulo)) translateY(calc(var(--distancia) * -1)) rotate(220deg) scale(1);
+  }
 }
 
 @keyframes entra {
   from {
     opacity: 0;
-    transform: translateY(20px) scale(0.97);
+    transform: translateY(36px) scale(0.94);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lateral__mascote,
+  .etapa--ativa .etapa__numero {
+    animation: none;
+  }
+
+  .confete {
+    display: none;
   }
 }
 
@@ -298,15 +614,25 @@
   .lateral {
     padding: 1rem 3.5rem 1rem 1.25rem;
 
-    &__logo,
+    &__cabeca,
     &__mascote {
       display: none;
     }
   }
 
+  .dica,
+  .garantias {
+    display: none;
+  }
+
   .etapas {
     flex-direction: row;
     gap: 0.9rem;
+
+    &::before,
+    &::after {
+      display: none;
+    }
   }
 
   .etapa:not(.etapa--ativa) .etapa__nome {

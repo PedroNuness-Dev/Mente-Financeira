@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 
-import { OnboardingComponent, TEMPO_FECHAR_MS } from './onboarding-component';
+import { OnboardingComponent, TEMPO_COMEMORACAO_MS, TEMPO_FECHAR_MS } from './onboarding-component';
 
 const URL_CARTEIRA = 'http://localhost:8080/api/user/wallet';
 
@@ -42,8 +42,10 @@ describe('OnboardingComponent', () => {
     expect(component.ultimoPasso()).toBe(true);
     component.avancar();
     expect(component.passoAtual()).toBe(2);
+    expect(component.direcao()).toBe('frente');
     component.voltar();
     expect(component.passoAtual()).toBe(1);
+    expect(component.direcao()).toBe('tras');
   });
 
   it('o campo de saldo aceita só números e já mostra o valor formatado', () => {
@@ -60,6 +62,7 @@ describe('OnboardingComponent', () => {
 
     httpMock.expectNone(URL_CARTEIRA);
     expect(component.mostrarErroSaldo()).toBe(true);
+    expect(component.tremidas()).toBe(1);
   });
 
   it('cria a carteira com o saldo em reais e avisa quando concluir', async () => {
@@ -76,6 +79,9 @@ describe('OnboardingComponent', () => {
     expect(req.request.body).toEqual({ initialBalance: 1000 });
     req.flush({ id: 1, balance: 1000, movement: null });
 
+    expect(component.comemorando()).toBe(true);
+    await vi.advanceTimersByTimeAsync(TEMPO_COMEMORACAO_MS);
+    expect(concluido).not.toHaveBeenCalled();
     await vi.advanceTimersByTimeAsync(TEMPO_FECHAR_MS);
     expect(concluido).toHaveBeenCalled();
   });

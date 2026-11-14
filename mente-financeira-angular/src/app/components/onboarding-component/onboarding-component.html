@@ -9,18 +9,21 @@
   <div class="onboarding__caixa">
     <!-- Lateral da marca: mascote e etapas (vira uma faixa compacta no celular) -->
     <aside class="lateral">
-      <img class="lateral__logo" src="logo-branca.png" alt="Mente Financeira" />
+      <header class="lateral__cabeca">
+        <span class="lateral__selo">Configuração inicial</span>
+        <p class="lateral__titulo">Vamos deixar sua carteira pronta</p>
+      </header>
 
-      <ol class="etapas">
+      <ol class="etapas" [style.--progresso]="progresso()">
         @for (passo of passos; track passo; let i = $index) {
           <li
             class="etapa"
             [class.etapa--ativa]="i === passoAtual()"
-            [class.etapa--feita]="i < passoAtual()"
+            [class.etapa--feita]="i < passoAtual() || comemorando()"
             [attr.aria-current]="i === passoAtual() ? 'step' : null"
           >
             <span class="etapa__numero">
-              @if (i < passoAtual()) {
+              @if (i < passoAtual() || comemorando()) {
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <path d="m5 12.5 4.5 4.5L19 7.5" />
                 </svg>
@@ -33,6 +36,34 @@
         }
       </ol>
 
+      <!-- A dica muda junto com o passo (o @for com track recria o card e replays a animação) -->
+      @for (dica of [dicas[passoAtual()]]; track dica.titulo) {
+        <div class="dica">
+          <svg class="dica__icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.4 1 1.1 1 1.8V16h5v-.3c0-.7.4-1.4 1-1.8A6 6 0 0 0 12 3z" />
+          </svg>
+          <div>
+            <strong class="dica__titulo">{{ dica.titulo }}</strong>
+            <p class="dica__texto">{{ dica.texto }}</p>
+          </div>
+        </div>
+      }
+
+      <ul class="garantias">
+        <li>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" />
+          </svg>
+          Seus dados ficam só na sua conta
+        </li>
+        <li>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 12a9 9 0 1 0 3-6.7L3 8" /><path d="M3 3v5h5" />
+          </svg>
+          O saldo se ajusta com as movimentações
+        </li>
+      </ul>
+
       <img class="lateral__mascote" src="mascote-login.png" alt="" width="984" height="690" />
     </aside>
 
@@ -43,12 +74,33 @@
         </svg>
       </button>
 
+      @if (comemorando()) {
+        <div class="comemoracao" role="status">
+          <div class="comemoracao__selo">
+            @for (c of confetes; track $index) {
+              <span
+                class="confete"
+                [style.--angulo.deg]="c.angulo"
+                [style.--distancia.px]="c.distancia"
+                [style.--cor]="c.cor"
+                [style.animation-delay.ms]="c.atraso"
+              ></span>
+            }
+            <svg class="comemoracao__check" viewBox="0 0 52 52" aria-hidden="true">
+              <circle cx="26" cy="26" r="24" fill="none" />
+              <path fill="none" d="m15 27 7.5 7.5L37.5 18" />
+            </svg>
+          </div>
+          <h2 class="comemoracao__titulo">Carteira criada!</h2>
+          <p class="comemoracao__texto">Começando com <strong>R$ {{ saldoTexto() }}</strong>. Preparando seu painel...</p>
+        </div>
+      } @else {
       <div class="conteudo__passo">
         <span class="mf-eyebrow">Passo {{ passoAtual() + 1 }} de {{ passos.length }}</span>
 
         @switch (passoAtual()) {
           @case (0) {
-            <div class="passo">
+            <div class="passo" [class]="'passo--' + direcao()">
               <h2 id="onboarding-titulo" class="passo__titulo">Boas-vindas à Mente Financeira</h2>
               <p class="passo__texto">
                 Em menos de um minuto você entende como o app funciona e configura sua carteira,
@@ -73,9 +125,9 @@
           }
 
           @case (1) {
-            <div class="passo">
+            <div class="passo" [class]="'passo--' + direcao()">
               <h2 id="onboarding-titulo" class="passo__titulo">Seu menu, em três partes</h2>
-              <p class="passo__texto">Cada seção da barra lateral cuida de uma coisa:</p>
+              <p class="passo__texto">Cada item da barra de navegação, lá no topo, cuida de uma coisa:</p>
 
               <ul class="mf-lista">
                 <li class="mf-lista__item">
@@ -118,7 +170,7 @@
           }
 
           @case (2) {
-            <div class="passo">
+            <div class="passo" [class]="'passo--' + direcao()">
               <h2 id="onboarding-titulo" class="passo__titulo">Quanto você tem hoje?</h2>
               <p class="passo__texto">
                 Esse valor vira o saldo inicial da sua carteira. A partir dele calculamos tudo o que entra e sai.
@@ -202,6 +254,7 @@
           </button>
         }
       </footer>
+      }
     </form>
   </div>
 </dialog>
