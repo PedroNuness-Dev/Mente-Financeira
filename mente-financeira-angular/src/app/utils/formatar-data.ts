@@ -26,3 +26,10 @@ export function formatarDataCurta(data: string | undefined): string {
   const [h, min] = hora.split(':');
   return h && min ? `${d}/${m} às ${h}:${min}` : `${d}/${m}`;
 }
+/** "14/11/2026 13:20:05" (formato do backend) -> Date. null se não der para ler. */
+export function lerDataBr(data: string | undefined): Date | null {
+  if (!data) return null;
+  const [dia, mes, ano] = data.split(' ')[0].split('/').map(Number);
+  const resultado = new Date(ano, mes - 1, dia);
+  return Number.isNaN(resultado.getTime()) ? null : resultado;
+}
