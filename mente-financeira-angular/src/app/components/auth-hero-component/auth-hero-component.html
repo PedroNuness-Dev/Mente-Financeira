@@ -1,0 +1,53 @@
+<div class="hero" (pointermove)="moverParallax($event)" (pointerleave)="resetarParallax($event)">
+  <div class="hero__texto">
+    <span class="mf-eyebrow hero__eyebrow">Finanças pessoais</span>
+    <h1 class="hero__titulo">
+      <span class="linha"><span>Vamos construir</span></span>
+      <span class="linha"><span class="destaque">uma vida financeira</span></span>
+      <span class="linha"><span>mais inteligente e organizada?</span></span>
+    </h1>
+    <p class="hero__subtitulo">
+      Registre entradas e saídas, entenda para onde vai seu dinheiro e acompanhe sua evolução mês a mês.
+    </p>
+  </div>
+
+  <div class="palco">
+    <img
+      #mascote
+      class="palco__mascote"
+      src="mascote-login.png"
+      alt="Mascote do Mente Financeira caminhando com um tablet"
+      width="984"
+      height="690"
+    />
+
+    <!-- Cards ilustrativos: decorativos, ocultos de leitores de tela -->
+    <div class="mf-stat cartao cartao--saldo" aria-hidden="true">
+      <span class="mf-stat__icone">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 17l6-6 4 4 8-8" />
+          <path d="M14 7h7v7" />
+        </svg>
+      </span>
+      <svg class="mf-stat__selo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="9.5" />
+        <path d="m8 12.2 2.7 2.7L16 9.5" />
+      </svg>
+      <strong class="mf-stat__valor">+12,4%</strong>
+      <span class="mf-stat__rotulo">Saldo do mês</span>
+    </div>
+
+    <div class="mf-stat cartao cartao--meta" aria-hidden="true">
+      <span class="mf-stat__icone">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="9" />
+          <circle cx="12" cy="12" r="5" />
+          <circle cx="12" cy="12" r="1" />
+        </svg>
+      </span>
+      <strong class="mf-stat__valor">68%</strong>
+      <span class="mf-stat__rotulo">Reserva de emergência</span>
+      <span class="cartao__barra"><span class="cartao__progresso"></span></span>
+    </div>
+  </div>
+</div>

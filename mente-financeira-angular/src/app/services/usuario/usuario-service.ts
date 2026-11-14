@@ -19,6 +19,11 @@ export class UsuarioService {
     return this.httpClient.post<UsuarioResponse>(`${this.url}/api/users`, usuarioRequest);
   }
 
+  /** Remove o perfil da memória (usado no logout). */
+  limpar(): void {
+    this.usuarioAtual.set(null);
+  }
+
   buscarPerfilDoUsuarioAutenticado() {
     return this.httpClient
       .get<UsuarioResponse>(`${this.url}/api/users/me`)

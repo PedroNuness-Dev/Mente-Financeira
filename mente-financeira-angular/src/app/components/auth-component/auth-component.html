@@ -1,17 +1,21 @@
-<section class="auth-form">
-  <div class="auth-content">
-    <img class="auth-logo" src="logo-branca.png" alt="Mente Financeira - Educação & Estratégia" />
+<main class="painel">
+  <div class="painel__interno">
+    <header class="marca">
+      <span class="marca__simbolo" aria-hidden="true">
+        <img src="logo-branca.png" alt="" />
+      </span>
+      <span class="marca__textos">
+        <span class="marca__nome">Mente <span>Financeira</span></span>
+        <span class="marca__slogan">Educação &amp; Estratégia</span>
+      </span>
+    </header>
 
-    <router-outlet />
+    <div class="painel__conteudo">
+      <router-outlet />
+    </div>
+
+    <footer class="painel__rodape">© {{ anoAtual }} Mente Financeira</footer>
   </div>
-</section>
+</main>
 
-<section class="auth-hero">
-  <h1>
-    Vamos construir <br />
-    <span>uma vida financeira</span> <br />
-    mais inteligente e organizada?
-  </h1>
-
-  <img class="auth-mascote" src="mascote-login.png" alt="Mascote do Mente Financeira caminhando com um tablet" />
-</section>
+<app-auth-hero class="hero" />

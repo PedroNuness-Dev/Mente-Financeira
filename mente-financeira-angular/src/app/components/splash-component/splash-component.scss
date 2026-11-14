@@ -1,0 +1,124 @@
+/* Cores fixas da marca: a splash é um momento de identidade, igual nos dois temas */
+.splash {
+  --x: 50vw;
+  --y: 50vh;
+  --raio: 150vmax;
+
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  color: #fff;
+}
+
+/* ---------- Ondas de cor: dourado -> verde -> verde profundo ---------- */
+.splash__onda {
+  position: absolute;
+  inset: 0;
+  clip-path: circle(var(--raio) at var(--x) var(--y));
+  animation: onda-expande 760ms var(--ease-in-out) backwards;
+
+  &--1 {
+    background: linear-gradient(135deg, #d9a94f, #b8863b);
+  }
+
+  &--2 {
+    background: linear-gradient(135deg, #34c48a, #0b7a56);
+    animation-delay: 110ms;
+  }
+
+  &--3 {
+    background:
+      radial-gradient(circle at 50% 36%, rgba(52, 196, 138, 0.35), transparent 45%),
+      radial-gradient(circle at 85% 90%, rgba(184, 134, 59, 0.22), transparent 40%),
+      linear-gradient(160deg, #1a5a41 0%, #12211c 65%);
+    animation-delay: 220ms;
+  }
+}
+
+/* ---------- Mascote e saudação ---------- */
+.splash__conteudo {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.splash__palco {
+  width: min(78vw, 420px);
+  margin-bottom: 1rem;
+  animation: mf-float 6s ease-in-out 1.4s infinite;
+}
+
+.splash__mascote {
+  display: block;
+  width: 100%;
+  height: auto;
+
+  &--pop {
+    animation: mf-pop 800ms var(--ease-bounce) 450ms backwards;
+  }
+}
+
+.splash__titulo {
+  font-size: clamp(1.75rem, 5vw, 2.6rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  animation: mf-rise 700ms var(--ease-out) 800ms backwards;
+}
+
+.splash__subtitulo {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.72);
+  animation: mf-rise 700ms var(--ease-out) 920ms backwards;
+}
+
+.splash__pontos {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 0.75rem;
+  animation: mf-fade-in 400ms var(--ease-out) 1.05s backwards;
+
+  span {
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 50%;
+    background: #34c48a;
+    animation: ponto 1s var(--ease-in-out) infinite;
+
+    &:nth-child(2) { animation-delay: 150ms; }
+    &:nth-child(3) { animation-delay: 300ms; }
+  }
+}
+
+/* ---------- Saída: cortina curva que sobe e revela o app ---------- */
+.splash--saindo {
+  animation: cortina-sobe 850ms var(--ease-in-out) forwards;
+}
+
+@keyframes onda-expande {
+  from {
+    clip-path: circle(0 at var(--x) var(--y));
+  }
+}
+
+@keyframes ponto {
+  0%,
+  100% { opacity: 0.35; transform: translateY(0); }
+  50% { opacity: 1; transform: translateY(-5px); }
+}
+
+@keyframes cortina-sobe {
+  from {
+    clip-path: inset(0 0 0 0 round 0);
+  }
+  to {
+    clip-path: inset(0 0 100% 0 round 0 0 50% 50%);
+  }
+}

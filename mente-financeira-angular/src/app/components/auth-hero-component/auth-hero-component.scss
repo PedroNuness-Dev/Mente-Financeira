@@ -1,0 +1,167 @@
+:host {
+  display: flex;
+}
+
+.hero {
+  --px: 0;
+  --py: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(1.5rem, 4vh, 3rem);
+  width: min(100%, 700px);
+  margin: auto;
+  padding: 2rem clamp(1.5rem, 4vw, 4rem);
+}
+
+/* ---------- Texto ---------- */
+.hero__eyebrow {
+  margin-bottom: 1rem;
+  animation: mf-rise var(--dur-slow) var(--ease-out) 150ms backwards;
+}
+
+/* Cada linha sobe de dentro de uma "máscara" */
+.hero__titulo {
+  font-size: clamp(2.1rem, 3.4vw, 3.25rem);
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+
+  .destaque {
+    color: var(--brand-green);
+  }
+}
+
+.linha {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.06em;
+
+  > span {
+    display: inline-block;
+    animation: linha-sobe var(--dur-slower) var(--ease-out) backwards;
+  }
+
+  @for $i from 1 through 3 {
+    &:nth-child(#{$i}) > span {
+      animation-delay: #{250 + ($i - 1) * 110}ms;
+    }
+  }
+}
+
+.hero__subtitulo {
+  max-width: 34rem;
+  margin-top: 1rem;
+  font-size: 1rem;
+  color: var(--ink-soft);
+  animation: mf-rise var(--dur-slower) var(--ease-out) 600ms backwards;
+}
+
+/* ---------- Palco do mascote ---------- */
+.palco {
+  position: relative;
+  width: min(100%, 560px);
+  align-self: center;
+
+  &__mascote {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: auto;
+    translate: calc(var(--px) * 14px) calc(var(--py) * 10px);
+    transition: translate 700ms var(--ease-out);
+    animation:
+      mascote-entra 1s var(--ease-spring) 200ms backwards,
+      mf-float 7s ease-in-out 1.2s infinite;
+  }
+}
+
+/* Durante a splash, o mascote "sai" daqui e voa até o centro da tela:
+   a cópia da splash aparece por cima (mesma imagem) e só então o original some;
+   os cards recolhem para não ficarem cortados pelo mascote que passa por cima. */
+:host-context(.splash-ativa) {
+  .palco__mascote {
+    visibility: hidden;
+    transition: visibility 0s linear 150ms;
+  }
+
+  .cartao {
+    opacity: 0;
+    scale: 0.9;
+    transition:
+      opacity 200ms var(--ease-in),
+      scale 200ms var(--ease-in);
+  }
+}
+
+/* ---------- Cards de status ---------- */
+.cartao {
+  position: absolute;
+  width: 11.5rem;
+  transition: translate 700ms var(--ease-out);
+
+  &--saldo {
+    --tom: var(--primary-light);
+    top: 4%;
+    left: -6%;
+    translate: calc(var(--px) * -26px) calc(var(--py) * -18px);
+    animation:
+      mf-pop 700ms var(--ease-bounce) 800ms backwards,
+      mf-float 6s ease-in-out 1.5s infinite;
+  }
+
+  &--meta {
+    --tom: var(--accent-gold);
+    right: -4%;
+    bottom: 6%;
+    width: 13rem;
+    translate: calc(var(--px) * -34px) calc(var(--py) * -24px);
+    animation:
+      mf-pop 700ms var(--ease-bounce) 950ms backwards,
+      mf-float 6.5s ease-in-out 2.2s infinite reverse;
+  }
+
+  &__barra {
+    height: 0.35rem;
+    margin-top: 0.25rem;
+    border-radius: 99px;
+    background: var(--border);
+    overflow: hidden;
+  }
+
+  &__progresso {
+    display: block;
+    width: 68%;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--accent-gold);
+    transform-origin: left;
+    animation: barra-enche 1.2s var(--ease-out) 1.3s backwards;
+  }
+}
+
+@keyframes linha-sobe {
+  from {
+    transform: translateY(105%);
+  }
+}
+
+@keyframes mascote-entra {
+  from {
+    opacity: 0;
+    transform: translateX(48px) scale(0.94);
+  }
+}
+
+@keyframes barra-enche {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .palco__mascote,
+  .cartao {
+    translate: none;
+  }
+}

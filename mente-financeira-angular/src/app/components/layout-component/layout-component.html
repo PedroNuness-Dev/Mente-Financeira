@@ -1,4 +1,4 @@
-<div class="shell" [attr.data-tema]="tema()">
+<div class="shell">
   <aside class="sidebar">
     <div class="sidebar__brand">
       <img class="sidebar__logo" src="logo-branca.png" alt="Mente Financeira" />
@@ -58,7 +58,7 @@
       </div>
     </nav>
 
-    <button class="sidebar__tema" (click)="alternarTema()">
+    <button class="sidebar__tema" (click)="alternarTema($event)">
       @if (tema() === 'claro') {
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
           <circle cx="12" cy="12" r="4" />
@@ -95,7 +95,9 @@
     }
 
     @if (!carregando() && !erro()) {
-      <router-outlet></router-outlet>
+      <div class="shell__pagina" animate.enter="mf-enter-rise">
+        <router-outlet></router-outlet>
+      </div>
     }
   </main>
 </div>

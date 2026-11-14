@@ -1,35 +1,40 @@
-<header class="login-header">
+<header class="mf-form-header">
+  <span class="mf-eyebrow">Acesse sua conta</span>
   <h2>Seja bem-vindo(a)!</h2>
   <p>Faça seu login e continue cuidando do seu futuro financeiro.</p>
 </header>
 
-<form class="login-form" #loginForm="ngForm" (keydown.enter)="login(loginForm)">
-  <div class="field">
-    <label for="email">E-mail</label>
-    <div class="input-wrapper" [class.invalid]="mostrarErro(emailCtrl)">
-      <!-- ícone de envelope -->
-      <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+@if (aviso()) {
+  <div class="mf-alert mf-alert--sucesso" role="status" animate.leave="mf-leave-fade">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="10" />
+      <path d="m8 12 3 3 5-6" />
+    </svg>
+    <span>{{ aviso() }}</span>
+  </div>
+}
+
+<form class="formulario" [formGroup]="form" (ngSubmit)="entrar()" novalidate>
+  <div class="mf-field">
+    <label class="mf-field__label" for="email">E-mail</label>
+    <div class="mf-input" [class.mf-input--invalido]="mostrarErro('email')">
+      <svg class="mf-input__icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <rect width="20" height="16" x="2" y="4" rx="2" />
         <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
       </svg>
       <input
         id="email"
-        name="email"
         type="email"
+        formControlName="email"
         placeholder="seu@email.com"
         autocomplete="email"
-        [(ngModel)]="email"
-        #emailCtrl="ngModel"
-        required
-        email
-        pattern="[^\s@]+@[^\s@]+\.[^\s@]+"
-        [attr.aria-invalid]="mostrarErro(emailCtrl)"
-        aria-describedby="email-erro"
+        [attr.aria-invalid]="mostrarErro('email')"
+        [attr.aria-describedby]="mostrarErro('email') ? 'email-erro' : null"
       />
     </div>
-    @if (mostrarErro(emailCtrl)) {
-      <span id="email-erro" class="error" role="alert">
-        @if (emailCtrl.errors?.['required']) {
+    @if (mostrarErro('email')) {
+      <span id="email-erro" class="mf-field__erro" role="alert" animate.enter="mf-enter-drop" animate.leave="mf-leave-fade">
+        @if (form.controls.email.hasError('required')) {
           Informe seu e-mail.
         } @else {
           Digite um e-mail válido, como nome@email.com.
@@ -38,40 +43,39 @@
     }
   </div>
 
-  <div class="field">
-    <label for="senha">Senha</label>
-    <div class="input-wrapper password-wrapper" [class.invalid]="mostrarErro(senhaCtrl)">
-      <!-- ícone de cadeado -->
-      <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  <div class="mf-field">
+    <div class="rotulo-senha">
+      <label class="mf-field__label" for="senha">Senha</label>
+      <!-- TODO: ligar à rota de recuperação de senha quando o backend expuser o endpoint -->
+      <a class="mf-link" aria-disabled="true" title="Em breve">Esqueceu sua senha?</a>
+    </div>
+    <div class="mf-input mf-input--com-acao" [class.mf-input--invalido]="mostrarErro('senha')">
+      <svg class="mf-input__icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
         <path d="M7 11V7a5 5 0 0 1 10 0v4" />
       </svg>
       <input
         id="senha"
-        name="senha"
-        [type]="showPassword() ? 'text' : 'password'"
+        [type]="mostrarSenha() ? 'text' : 'password'"
+        formControlName="senha"
         placeholder="Digite sua senha"
         autocomplete="current-password"
-        [(ngModel)]="senha"
-        #senhaCtrl="ngModel"
-        required
-        [attr.aria-invalid]="mostrarErro(senhaCtrl)"
-        aria-describedby="senha-erro"
+        [attr.aria-invalid]="mostrarErro('senha')"
+        [attr.aria-describedby]="mostrarErro('senha') ? 'senha-erro' : null"
       />
       <button
         type="button"
-        class="toggle-password"
-        (click)="togglePassword()"
-        [attr.aria-label]="showPassword() ? 'Ocultar senha' : 'Mostrar senha'"
+        class="mf-input__acao"
+        (click)="alternarSenha()"
+        [attr.aria-label]="mostrarSenha() ? 'Ocultar senha' : 'Mostrar senha'"
+        [attr.aria-pressed]="mostrarSenha()"
       >
-        @if (showPassword()) {
-          <!-- olho aberto: senha visível -->
+        @if (mostrarSenha()) {
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" />
             <circle cx="12" cy="12" r="3" />
           </svg>
         } @else {
-          <!-- olho riscado: senha oculta -->
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
             <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" />
@@ -81,25 +85,37 @@
         }
       </button>
     </div>
-    @if (mostrarErro(senhaCtrl)) {
-      <span id="senha-erro" class="error" role="alert">Informe sua senha.</span>
+    @if (mostrarErro('senha')) {
+      <span id="senha-erro" class="mf-field__erro" role="alert" animate.enter="mf-enter-drop" animate.leave="mf-leave-fade">
+        Informe sua senha.
+      </span>
     }
-    @if (erroLogin()) {
-      <div class="alert-erro" role="alert">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <circle cx="12" cy="12" r="10" />
-          <line x1="12" x2="12" y1="8" y2="12" />
-          <line x1="12" x2="12.01" y1="16" y2="16" />
-        </svg>
-        <span>{{ erroLogin() }}</span>
-      </div>
-    }
-    <a class="forgot">Esqueceu sua senha?</a>
   </div>
 
-  <button type="button" class="btn btn-primary" (click)="login(loginForm)">Entrar</button>
+  @if (erroLogin()) {
+    <div class="mf-alert mf-alert--erro" role="alert" animate.leave="mf-leave-fade">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" x2="12" y1="8" y2="12" />
+        <line x1="12" x2="12.01" y1="16" y2="16" />
+      </svg>
+      <span>{{ erroLogin() }}</span>
+    </div>
+  }
+
+  <button #botaoEntrar type="submit" class="mf-btn mf-btn--primario" [disabled]="carregando()" [attr.aria-busy]="carregando()">
+    @if (carregando()) {
+      <span class="mf-spinner" aria-hidden="true"></span>
+      Entrando...
+    } @else {
+      Entrar
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M5 12h14M13 6l6 6-6 6" />
+      </svg>
+    }
+  </button>
 </form>
 
-<div class="divider"><span>ou</span></div>
+<div class="mf-divider"><span>ou</span></div>
 
-<a class="btn btn-outline" routerLink="/auth/cadastro">Criar conta</a>
+<a class="mf-btn mf-btn--contorno" routerLink="/auth/cadastro">Criar conta</a>

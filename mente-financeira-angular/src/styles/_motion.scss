@@ -1,0 +1,222 @@
+/* =========================================================================
+   Movimento: curvas, durações, keyframes compartilhados, classes para o
+   animate.enter / animate.leave do Angular, View Transitions e
+   respeito ao prefers-reduced-motion.
+   ========================================================================= */
+
+:root {
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.55, 0, 1, 0.45);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  /* Mola suave: leve "passada" do ponto final (~2%) e assenta */
+  --ease-spring: linear(0, 0.006, 0.025 2.8%, 0.101 6.1%, 0.539 18.9%, 0.721 25.3%, 0.849 31.5%,
+      0.937 38.1%, 0.968 41.8%, 0.991 45.7%, 1.006 50.1%, 1.015 55%, 1.017 63.9%, 1.001);
+  /* Mola com quique: para momentos de celebração (ícone de sucesso etc.) */
+  --ease-bounce: linear(0, 0.009, 0.035 2.1%, 0.141, 0.281 6.7%, 0.723 12.9%, 0.938 16.7%, 1.017,
+      1.077, 1.121, 1.149 24.3%, 1.159, 1.163, 1.161, 1.154 29.9%, 1.129 32.8%, 1.051 39.6%,
+      1.017 43.1%, 0.991, 0.977 51%, 0.974 53.8%, 0.975 57.1%, 0.997 69.8%, 1.003 76.9%, 1);
+
+  --dur-fast: 140ms;
+  --dur-base: 240ms;
+  --dur-slow: 420ms;
+  --dur-slower: 720ms;
+}
+
+/* ---------- Keyframes compartilhados ---------- */
+@keyframes mf-fade-in {
+  from { opacity: 0; }
+}
+
+@keyframes mf-fade-out {
+  to { opacity: 0; }
+}
+
+@keyframes mf-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+
+@keyframes mf-drop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes mf-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+}
+
+@keyframes mf-shake {
+  0% { opacity: 0; transform: translateY(-6px); }
+  35% { opacity: 1; transform: translateX(-5px); }
+  55% { transform: translateX(4px); }
+  75% { transform: translateX(-2px); }
+  100% { transform: none; }
+}
+
+@keyframes mf-float {
+  0%,
+  100% { transform: translateY(0) rotate(0); }
+  50% { transform: translateY(-10px) rotate(-0.6deg); }
+}
+
+@keyframes mf-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ---------- Classes para animate.enter / animate.leave ---------- */
+.mf-enter-drop {
+  animation: mf-drop-in var(--dur-base) var(--ease-out);
+}
+
+.mf-enter-rise {
+  animation: mf-rise var(--dur-slower) var(--ease-spring);
+}
+
+.mf-enter-pop {
+  animation: mf-pop var(--dur-slow) var(--ease-bounce);
+}
+
+.mf-leave-fade {
+  animation: mf-fade-out var(--dur-fast) var(--ease-in) forwards;
+}
+
+/* ---------- Entrada em cascata dos filhos diretos ----------
+   Usa fill-mode "backwards" (e não "both") para que, depois de entrar,
+   o elemento volte a obedecer hover/active normalmente. */
+.mf-stagger > * {
+  animation: mf-rise var(--dur-slow) var(--ease-spring) backwards;
+}
+
+@for $i from 1 through 10 {
+  .mf-stagger > :nth-child(#{$i}) {
+    animation-delay: calc(#{($i - 1) * 55ms} + var(--stagger-delay, 0ms));
+  }
+}
+
+/* ---------- View Transitions (navegação entre rotas) ---------- */
+::view-transition-group(*) {
+  animation-duration: var(--dur-slow);
+  animation-timing-function: var(--ease-out);
+}
+
+::view-transition-old(root) {
+  animation: mf-fade-out 180ms var(--ease-in) both;
+}
+
+::view-transition-new(root) {
+  animation: mf-fade-in 320ms var(--ease-out) 60ms both;
+}
+
+/* Login <-> cadastro: o conteúdo antigo sai desfocando e o novo entra
+   (os campos do novo conteúdo ainda entram em cascata via .mf-stagger) */
+::view-transition-old(auth-conteudo) {
+  animation: mf-conteudo-sai 200ms var(--ease-in) both;
+}
+
+::view-transition-new(auth-conteudo) {
+  animation: mf-fade-in 300ms var(--ease-out) 120ms both;
+}
+
+@keyframes mf-conteudo-sai {
+  to {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.98);
+    filter: blur(4px);
+  }
+}
+
+/* Entrada no app (login/cadastro -> home): a tela de autenticação recua e
+   desfoca, e o app surge por cima. A sidebar e o conteúdo do layout
+   completam o movimento com as próprias animações de entrada. */
+:root.vt-entrar-app::view-transition-old(root) {
+  animation: mf-auth-recua 480ms var(--ease-in) both;
+}
+
+:root.vt-entrar-app::view-transition-new(root) {
+  animation: mf-app-surge 700ms var(--ease-out) 160ms both;
+}
+
+/* Saída do app (logout): movimento inverso, mais curto */
+:root.vt-sair-app::view-transition-old(root) {
+  animation: mf-app-recua 320ms var(--ease-in) both;
+}
+
+:root.vt-sair-app::view-transition-new(root) {
+  animation: mf-fade-in 420ms var(--ease-out) 100ms both;
+}
+
+@keyframes mf-auth-recua {
+  to {
+    opacity: 0;
+    transform: scale(0.94);
+    filter: blur(10px);
+  }
+}
+
+@keyframes mf-app-surge {
+  from {
+    opacity: 0;
+    transform: scale(1.04);
+  }
+}
+
+@keyframes mf-app-recua {
+  to {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+}
+
+/* Nas transições de tema e de entrada/saída do app, a tela anima como um todo */
+:root.vt-tema *,
+:root.vt-entrar-app *,
+:root.vt-sair-app * {
+  view-transition-name: none !important;
+}
+
+/* Troca de tema: revelação circular a partir do botão clicado */
+
+:root.vt-tema::view-transition-old(root) {
+  animation: none;
+}
+
+:root.vt-tema::view-transition-new(root) {
+  animation: mf-revelar-tema 620ms var(--ease-in-out) both;
+}
+
+@keyframes mf-revelar-tema {
+  from { clip-path: circle(0 at var(--vt-x, 50%) var(--vt-y, 50%)); }
+  to { clip-path: circle(var(--vt-raio, 150vmax) at var(--vt-x, 50%) var(--vt-y, 50%)); }
+}
+
+/* ---------- Acessibilidade: movimento reduzido ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Indicador de carregamento continua girando: ele comunica estado */
+  .mf-spinner {
+    animation-duration: 1.4s !important;
+    animation-iteration-count: infinite !important;
+  }
+
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}

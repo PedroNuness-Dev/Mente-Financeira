@@ -1,0 +1,26 @@
+@if (config(); as c) {
+  <div class="splash" role="status" aria-live="polite" [style]="estiloOndas()" animate.leave="splash--saindo">
+    <span class="splash__onda splash__onda--1" aria-hidden="true"></span>
+    <span class="splash__onda splash__onda--2" aria-hidden="true"></span>
+    <span class="splash__onda splash__onda--3" aria-hidden="true"></span>
+
+    <div class="splash__conteudo">
+      <div class="splash__palco" aria-hidden="true">
+        <img
+          #mascote
+          class="splash__mascote"
+          [class.splash__mascote--pop]="!voa()"
+          src="mascote-login.png"
+          alt=""
+          width="984"
+          height="690"
+        />
+      </div>
+
+      <h2 class="splash__titulo">{{ c.titulo }}</h2>
+      <p class="splash__subtitulo">{{ c.subtitulo }}</p>
+
+      <span class="splash__pontos" aria-hidden="true"><span></span><span></span><span></span></span>
+    </div>
+  </div>
+}

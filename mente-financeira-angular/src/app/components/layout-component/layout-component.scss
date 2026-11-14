@@ -1,20 +1,12 @@
+/* Cores e tema vêm dos tokens globais (src/styles/_tokens.scss).
+   Aqui ficam só os tokens próprios da sidebar, que é escura nos dois temas. */
 :host {
-  --bg: #faf9f5;
-  --surface: #ffffff;
-  --ink: #16241f;
-  --ink-soft: #5c6b64;
-  --border: #e4e1d5;
-  --accent-gold: #b8863b;
-  --erro: #a4442e;
-
   --sidebar-bg: #12211c;
   --sidebar-text: rgba(238, 241, 238, 0.65);
   --sidebar-text-active: #f5f7f2;
   --sidebar-border: rgba(238, 241, 238, 0.08);
-  --accent-green: #4cbb7a;
-  --accent-green-bg: rgba(76, 187, 122, 0.14);
 
-  display: block;  
+  display: block;
   color: var(--ink);
   min-height: 100vh;
 }
@@ -31,6 +23,8 @@
   flex-shrink: 0;
   background: var(--sidebar-bg);
   padding: 1.5rem 1rem;
+  /* Entra deslizando quando o layout monta (logo após o login) */
+  animation: sidebar-entra var(--dur-slower) var(--ease-spring) 200ms backwards;
 
   &__brand {
     display: flex;
@@ -195,19 +189,12 @@
 .shell__status {
   color: var(--ink-soft);
   font-size: 0.95rem;
+  /* Atraso: se o perfil carregar rápido, o aviso nem chega a aparecer */
+  animation: mf-fade-in var(--dur-slow) var(--ease-out) 400ms backwards;
 
   &--erro {
     color: var(--erro);
   }
-}
-
-.shell[data-tema='escuro'] {
-  --bg: #12211c;
-  --surface: #1b2721;
-  --ink: #f1f3ef;
-  --ink-soft: #8b958f;
-  --border: rgba(241, 243, 239, 0.08);
-  --erro: #e2725a;
 }
 
 .overlay {
@@ -313,6 +300,21 @@
     &:hover {
       border-color: var(--accent-gold);
     }
+  }
+}
+
+/* Enquanto a splash cobre a tela, as entradas ficam pausadas e tocam quando ela sai */
+:host-context(.splash-ativa) {
+  .sidebar,
+  .shell__pagina {
+    animation-play-state: paused;
+  }
+}
+
+@keyframes sidebar-entra {
+  from {
+    opacity: 0;
+    transform: translateX(-24px);
   }
 }
 

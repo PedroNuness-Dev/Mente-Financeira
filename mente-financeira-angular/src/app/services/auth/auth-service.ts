@@ -3,6 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { LoginRequest } from '../../interfaces/auth/LoginRequest';
 import { LoginResponse } from '../../interfaces/auth/LoginResponse';
 import { tap } from 'rxjs';
+import { UsuarioService } from '../usuario/usuario-service';
 
 const TOKEN_KEY = 'token';
 const EXPIRE_AT = 'expire_at';
@@ -13,6 +14,7 @@ const EXPIRE_AT = 'expire_at';
 export class AuthService {
 
   private httpClient = inject(HttpClient);
+  private usuarioService = inject(UsuarioService);
   private url = 'http://localhost:8080'
 
   login(loginRequest : LoginRequest){
@@ -36,6 +38,8 @@ export class AuthService {
   logout() {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(EXPIRE_AT);
+    // Não deixa dados pessoais do usuário anterior na memória da aplicação
+    this.usuarioService.limpar();
   }
 
   isTokenExpirado(){

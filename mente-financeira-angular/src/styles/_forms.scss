@@ -1,0 +1,371 @@
+/* =========================================================================
+   Componentes reutilizáveis: eyebrow, cabeçalho, card de status, campo,
+   input com ícone, botões, link, divisor, alertas e spinner.
+   ========================================================================= */
+
+/* ---------- Eyebrow: rótulo curto acima de títulos ("— AGENDA DO DIA") ---------- */
+.mf-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--brand-green);
+
+  &::before {
+    content: '';
+    width: 1.25rem;
+    height: 2px;
+    border-radius: 2px;
+    background: currentColor;
+  }
+}
+
+/* ---------- Cabeçalho de formulário ---------- */
+.mf-form-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  h2 {
+    font-size: clamp(1.6rem, 2.2vw, 1.9rem);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.025em;
+  }
+
+  p {
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+  }
+}
+
+/* ---------- Card de status: superfície com tom de cor (verde, dourado...) ----------
+   Uso: <div class="mf-stat" style="--tom: var(--primary-light)"> */
+.mf-stat {
+  --tom: var(--primary-light);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid color-mix(in srgb, var(--tom) 55%, transparent);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--tom) 9%, var(--surface));
+  box-shadow: var(--shadow-card);
+
+  &__icone {
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: var(--radius-sm);
+    background: color-mix(in srgb, var(--tom) 20%, transparent);
+    color: var(--tom);
+
+    svg {
+      width: 1.1rem;
+      height: 1.1rem;
+    }
+  }
+
+  &__selo {
+    position: absolute;
+    top: 0.9rem;
+    right: 1rem;
+    width: 1.25rem;
+    height: 1.25rem;
+    color: var(--tom);
+  }
+
+  &__valor {
+    font-size: 1.45rem;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+  }
+
+  &__rotulo {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+}
+
+/* ---------- Campo ---------- */
+.mf-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+
+  &__label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  &__erro {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--danger);
+  }
+}
+
+/* ---------- Input com ícone ---------- */
+.mf-input {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  input {
+    width: 100%;
+    height: 3rem;
+    padding: 0 1rem 0 2.75rem;
+    border: 1px solid var(--input-border);
+    border-radius: var(--radius-sm);
+    background: var(--input-bg);
+    color: var(--ink);
+    font-size: 0.95rem;
+    transition:
+      border-color var(--dur-base) var(--ease-out),
+      box-shadow var(--dur-base) var(--ease-out);
+
+    &::placeholder {
+      color: var(--ink-faint);
+    }
+
+    &:hover {
+      border-color: var(--input-border-hover);
+    }
+
+    &:focus {
+      outline: none;
+      border-color: var(--primary-light);
+      box-shadow: var(--focus-ring);
+    }
+
+    &:-webkit-autofill {
+      -webkit-text-fill-color: var(--ink);
+      box-shadow: 0 0 0 100px var(--surface) inset;
+      caret-color: var(--ink);
+    }
+  }
+
+  &__icone {
+    position: absolute;
+    left: 0.95rem;
+    width: 1.1rem;
+    height: 1.1rem;
+    color: var(--ink-faint);
+    pointer-events: none;
+    transition:
+      color var(--dur-base) var(--ease-out),
+      transform var(--dur-slow) var(--ease-bounce);
+  }
+
+  &:focus-within &__icone {
+    color: var(--primary-light);
+    transform: scale(1.1);
+  }
+
+  /* Botão dentro do input (mostrar senha) */
+  &__acao {
+    position: absolute;
+    right: 0.4rem;
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: none;
+    color: var(--ink-faint);
+    cursor: pointer;
+    transition:
+      color var(--dur-fast) var(--ease-out),
+      background-color var(--dur-fast) var(--ease-out);
+
+    svg {
+      width: 1.2rem;
+      height: 1.2rem;
+      animation: mf-pop var(--dur-base) var(--ease-spring);
+    }
+
+    &:hover {
+      color: var(--ink);
+      background: var(--accent-green-bg);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--primary-light);
+      outline-offset: 1px;
+    }
+  }
+
+  &--com-acao input {
+    padding-right: 3rem;
+  }
+
+  &--invalido {
+    input,
+    input:hover {
+      border-color: var(--danger);
+    }
+
+    input:focus {
+      border-color: var(--danger);
+      box-shadow: 0 0 0 3px var(--danger-ring);
+    }
+
+    .mf-input__icone,
+    &:focus-within .mf-input__icone {
+      color: var(--danger);
+    }
+  }
+}
+
+/* ---------- Botões: sólidos, cantos discretos ---------- */
+.mf-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  width: 100%;
+  height: 3rem;
+  padding: 0 1.25rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    transform var(--dur-base) var(--ease-spring),
+    background-color var(--dur-base) var(--ease-out),
+    border-color var(--dur-base) var(--ease-out),
+    color var(--dur-base) var(--ease-out);
+
+  svg {
+    width: 1.1rem;
+    height: 1.1rem;
+    transition: transform var(--dur-base) var(--ease-spring);
+  }
+
+  &:hover:not(:disabled) svg {
+    transform: translateX(3px);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.98);
+    transition-duration: 80ms;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--primary-light);
+    outline-offset: 3px;
+  }
+
+  &:disabled {
+    cursor: progress;
+  }
+
+  &--primario {
+    color: #fff;
+    background: var(--primary);
+
+    &:hover:not(:disabled) {
+      background: var(--primary-hover);
+    }
+  }
+
+  &--contorno {
+    color: var(--link);
+    background: transparent;
+    border-color: var(--border-strong);
+
+    &:hover {
+      border-color: var(--primary-light);
+      background: var(--accent-green-bg);
+    }
+  }
+}
+
+/* ---------- Link com sublinhado animado ---------- */
+.mf-link {
+  color: var(--link);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-decoration: none;
+  background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
+  transition: background-size var(--dur-slow) var(--ease-out);
+  cursor: pointer;
+
+  &:hover {
+    background-size: 100% 1px;
+  }
+}
+
+/* ---------- Divisor "ou" ---------- */
+.mf-divider {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--ink-faint);
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+}
+
+/* ---------- Alertas ---------- */
+.mf-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.8rem 1rem;
+  border: 1px solid;
+  border-radius: var(--radius-md);
+  font-size: 0.88rem;
+  font-weight: 600;
+  line-height: 1.4;
+
+  svg {
+    flex-shrink: 0;
+    width: 1.1rem;
+    height: 1.1rem;
+    margin-top: 0.05rem;
+  }
+
+  &--erro {
+    background: var(--danger-bg);
+    border-color: var(--danger-border);
+    color: var(--danger);
+    animation: mf-shake 460ms var(--ease-out);
+  }
+
+  &--sucesso {
+    background: var(--accent-green-bg);
+    border-color: rgba(76, 187, 122, 0.35);
+    color: var(--success-ink);
+  }
+}
+
+/* ---------- Spinner ---------- */
+.mf-spinner {
+  display: inline-block;
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: mf-spin 700ms linear infinite;
+}

@@ -1,0 +1,90 @@
+/* =========================================================================
+   Tokens do design system — fonte única de cores, raios e tipografia.
+   Tema claro em :root; tema escuro em :root[data-tema='escuro'].
+   O atributo data-tema é aplicado no <html> pelo ThemeService
+   (e por um script inline no index.html, para evitar "piscar" no carregamento).
+
+   Estilo: superfícies sólidas com borda fina, cantos discretos, tipografia
+   sans em peso forte e cor usada com intenção (tons em cards de status).
+   ========================================================================= */
+
+:root {
+  color-scheme: light;
+
+  /* Tipografia */
+  --font-sans: 'Manrope', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* Raios */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 0.875rem;
+
+  /* Superfícies */
+  --bg: #faf9f5;
+  --surface: #ffffff;
+  --surface-sunken: #f3f1ea;
+  --border: #e4e1d5;
+  --border-strong: #d6d2c3;
+  --shadow-card: 0 1px 2px rgba(18, 33, 28, 0.04), 0 12px 32px -16px rgba(18, 33, 28, 0.22);
+
+  /* Texto */
+  --ink: #16241f;
+  --ink-soft: #5c6b64;
+  --ink-faint: #8a958f;
+
+  /* Marca (paleta original do projeto) */
+  --primary: #0b7a56;
+  --primary-hover: #0e8f66;
+  --primary-light: #34c48a;
+  --accent-green: #4cbb7a;
+  --accent-green-bg: rgba(76, 187, 122, 0.14);
+  --accent-gold: #b8863b;
+  --brand-green: #2f9e63;
+  --link: var(--primary);
+
+  /* Feedback */
+  --danger: #b93a26;
+  --danger-bg: rgba(185, 58, 38, 0.07);
+  --danger-border: rgba(185, 58, 38, 0.22);
+  --danger-ring: rgba(185, 58, 38, 0.14);
+  --success-ink: #0b6b4b;
+  --focus-ring: 0 0 0 3px rgba(52, 196, 138, 0.22);
+
+  /* Campos de formulário */
+  --input-bg: #ffffff;
+  --input-border: #dcd8ca;
+  --input-border-hover: #c2bdaa;
+
+  /* Aliases dos tokens antigos (mantidos para compatibilidade) */
+  --text: var(--ink);
+  --text-muted: var(--ink-soft);
+  --erro: var(--danger);
+}
+
+:root[data-tema='escuro'] {
+  color-scheme: dark;
+
+  --bg: #12211c;
+  --surface: #1b2721;
+  --surface-sunken: #16231e;
+  --border: rgba(241, 243, 239, 0.08);
+  --border-strong: rgba(241, 243, 239, 0.16);
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.25), 0 16px 40px -16px rgba(0, 0, 0, 0.6);
+
+  --ink: #f1f3ef;
+  --ink-soft: #8f9a94;
+  --ink-faint: #6b7670;
+
+  --brand-green: #4cbb7a;
+  --link: var(--primary-light);
+
+  --danger: #ef7a64;
+  --danger-bg: rgba(239, 122, 100, 0.1);
+  --danger-border: rgba(239, 122, 100, 0.28);
+  --danger-ring: rgba(239, 122, 100, 0.18);
+  --success-ink: #7fdcae;
+
+  --input-bg: rgba(0, 0, 0, 0.14);
+  --input-border: rgba(241, 243, 239, 0.12);
+  --input-border-hover: rgba(241, 243, 239, 0.24);
+}

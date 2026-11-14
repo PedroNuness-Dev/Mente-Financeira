@@ -4,7 +4,7 @@ import { LoginComponent } from './components/login-component/login-component';
 import { CadastroComponent } from './components/cadastro-component/cadastro-component';
 import { LayoutComponent } from './components/layout-component/layout-component';
 import { HomeComponent } from './components/home-component/home-component';
-import { authGuard } from './auth.guard';
+import { authGuard, guestGuard } from './auth.guard';
 import { ConfiguracoesComponent } from './components/configuracoes-component/configuracoes-component';
 import { RelatoriosComponent } from './components/relatorios-component/relatorios-component';
 import { MovimentacoesComponent } from './components/movimentacoes-component/movimentacoes-component';
@@ -15,6 +15,7 @@ export const routes: Routes = [
   {
     path: 'auth',
     component: AuthComponent,
+    canActivate: [guestGuard],
     children: [
       { path: '', redirectTo: 'login', pathMatch: 'full' },
       { path: 'login', component: LoginComponent },
@@ -25,6 +26,7 @@ export const routes: Routes = [
     path: '',
     component: LayoutComponent,
     canActivate: [authGuard],
+    canActivateChild: [authGuard],
     children: [
       { path: 'home', component: HomeComponent },
       { path: 'movimentacoes', component: MovimentacoesComponent },

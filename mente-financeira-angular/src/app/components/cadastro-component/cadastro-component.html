@@ -1,46 +1,44 @@
-<header class="cadastro-header">
-  <h2>Crie sua conta</h2>
-  <p>Comece a organizar o seu futuro financeiro.</p>
-</header>
-
-@if (sucesso()) {
-  <div class="success-state">
-    <div class="success-icon-wrapper">
-      <svg class="success-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-        <path fill-rule="evenodd" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm4.7 7.7-5.4 5.4a1 1 0 0 1-1.4 0l-2.6-2.6a1 1 0 1 1 1.4-1.4l1.9 1.9 4.7-4.7a1 1 0 0 1 1.4 1.4z" clip-rule="evenodd" />
+@if (etapa() === 'concluido') {
+  <div class="sucesso" role="status" aria-live="polite">
+    <div #iconeSucesso class="sucesso__icone" aria-hidden="true">
+      <span class="sucesso__onda"></span>
+      <span class="sucesso__onda sucesso__onda--atrasada"></span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+        <path class="sucesso__check" d="m6 12.5 4 4 8-9" />
       </svg>
     </div>
-    <h3>Conta criada com sucesso!</h3>
-    <p>Redirecionando para o login...</p>
-    <span class="spinner" aria-hidden="true"></span>
+    <h2>Conta criada, {{ primeiroNome() }}!</h2>
+    <p>Preparando seu painel...</p>
+    <span class="sucesso__progresso" aria-hidden="true"><span></span></span>
   </div>
 } @else {
-  <form class="cadastro-form" #cadastroForm="ngForm" (keydown.enter)="cadastrar(cadastroForm)">
-    <div class="field">
-      <label for="nome">Nome</label>
-      <div class="input-wrapper" [class.invalid]="mostrarErro(nomeCtrl)">
-        <!-- ícone de usuário -->
-        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  <header class="mf-form-header">
+    <span class="mf-eyebrow">Comece agora</span>
+    <h2>Crie sua conta</h2>
+    <p>Comece a organizar o seu futuro financeiro.</p>
+  </header>
+
+  <form class="formulario" [formGroup]="form" (ngSubmit)="criarConta()" novalidate>
+    <div class="mf-field">
+      <label class="mf-field__label" for="nome">Nome</label>
+      <div class="mf-input" [class.mf-input--invalido]="mostrarErro('nome')">
+        <svg class="mf-input__icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
           <circle cx="12" cy="7" r="4" />
         </svg>
         <input
           id="nome"
-          name="nome"
           type="text"
+          formControlName="nome"
           placeholder="Seu nome"
           autocomplete="name"
-          [(ngModel)]="nome"
-          #nomeCtrl="ngModel"
-          required
-          minlength="2"
-          [attr.aria-invalid]="mostrarErro(nomeCtrl)"
-          aria-describedby="nome-erro"
+          [attr.aria-invalid]="mostrarErro('nome')"
+          [attr.aria-describedby]="mostrarErro('nome') ? 'nome-erro' : null"
         />
       </div>
-      @if (mostrarErro(nomeCtrl)) {
-        <span id="nome-erro" class="error" role="alert">
-          @if (nomeCtrl.errors?.['required']) {
+      @if (mostrarErro('nome')) {
+        <span id="nome-erro" class="mf-field__erro" role="alert" animate.enter="mf-enter-drop" animate.leave="mf-leave-fade">
+          @if (form.controls.nome.hasError('required')) {
             Informe seu nome.
           } @else {
             O nome precisa ter pelo menos 2 caracteres.
@@ -49,32 +47,26 @@
       }
     </div>
 
-    <div class="field">
-      <label for="email">E-mail</label>
-      <div class="input-wrapper" [class.invalid]="mostrarErro(emailCtrl)">
-        <!-- ícone de envelope -->
-        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <div class="mf-field">
+      <label class="mf-field__label" for="email">E-mail</label>
+      <div class="mf-input" [class.mf-input--invalido]="mostrarErro('email')">
+        <svg class="mf-input__icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <rect width="20" height="16" x="2" y="4" rx="2" />
           <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
         </svg>
         <input
           id="email"
-          name="email"
           type="email"
+          formControlName="email"
           placeholder="seu@email.com"
           autocomplete="email"
-          [(ngModel)]="email"
-          #emailCtrl="ngModel"
-          required
-          email
-          pattern="[^\s@]+@[^\s@]+\.[^\s@]+"
-          [attr.aria-invalid]="mostrarErro(emailCtrl)"
-          aria-describedby="email-erro"
+          [attr.aria-invalid]="mostrarErro('email')"
+          [attr.aria-describedby]="mostrarErro('email') ? 'email-erro' : null"
         />
       </div>
-      @if (mostrarErro(emailCtrl)) {
-        <span id="email-erro" class="error" role="alert">
-          @if (emailCtrl.errors?.['required']) {
+      @if (mostrarErro('email')) {
+        <span id="email-erro" class="mf-field__erro" role="alert" animate.enter="mf-enter-drop" animate.leave="mf-leave-fade">
+          @if (form.controls.email.hasError('required')) {
             Informe seu e-mail.
           } @else {
             Digite um e-mail válido, como nome@email.com.
@@ -83,36 +75,31 @@
       }
     </div>
 
-    <div class="field">
-      <label for="senha">Senha</label>
-      <div class="input-wrapper password-wrapper" [class.invalid]="mostrarErroSenha(senhaCtrl)">
-        <!-- ícone de cadeado -->
-        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <div class="mf-field">
+      <label class="mf-field__label" for="senha">Senha</label>
+      <div class="mf-input mf-input--com-acao" [class.mf-input--invalido]="mostrarErro('senha')">
+        <svg class="mf-input__icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
           <path d="M7 11V7a5 5 0 0 1 10 0v4" />
         </svg>
         <input
           id="senha"
-          name="senha"
-          [type]="showPassword() ? 'text' : 'password'"
+          [type]="mostrarSenha() ? 'text' : 'password'"
+          formControlName="senha"
           placeholder="Crie uma senha"
           autocomplete="new-password"
-          [(ngModel)]="senha"
-          #senhaCtrl="ngModel"
-          required
-          minlength="8"
-          pattern="(?=.*[A-Za-z])(?=.*\d).+"
           (focus)="senhaFocada.set(true)"
-          [attr.aria-invalid]="mostrarErroSenha(senhaCtrl)"
-          aria-describedby="senha-erro"
+          [attr.aria-invalid]="mostrarErro('senha')"
+          aria-describedby="senha-requisitos"
         />
         <button
           type="button"
-          class="toggle-password"
-          (click)="togglePassword()"
-          [attr.aria-label]="showPassword() ? 'Ocultar senhas' : 'Mostrar senhas'"
+          class="mf-input__acao"
+          (click)="alternarSenha()"
+          [attr.aria-label]="mostrarSenha() ? 'Ocultar senhas' : 'Mostrar senhas'"
+          [attr.aria-pressed]="mostrarSenha()"
         >
-          @if (showPassword()) {
+          @if (mostrarSenha()) {
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" />
               <circle cx="12" cy="12" r="3" />
@@ -127,44 +114,57 @@
           }
         </button>
       </div>
-      @if (mostrarErroSenha(senhaCtrl)) {
-        <span id="senha-erro" class="error" role="alert">
-          @if (senhaCtrl.errors?.['required']) {
-            Crie uma senha.
-          } @else if (senhaCtrl.errors?.['minlength']) {
-            A senha precisa ter pelo menos 8 caracteres.
-          } @else {
-            Use pelo menos uma letra e um número.
-          }
-        </span>
+
+      @if (mostrarRequisitos()) {
+        <div class="requisitos" animate.enter="mf-enter-drop">
+          <span class="forca" [attr.data-nivel]="forcaSenha()" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </span>
+          <ul id="senha-requisitos" class="requisitos__lista">
+            @for (requisito of requisitosSenha(); track requisito.rotulo) {
+              <li
+                class="requisito"
+                [class.requisito--ok]="requisito.atendido"
+                [class.requisito--erro]="enviado() && !requisito.atendido"
+              >
+                <svg viewBox="0 0 16 16" aria-hidden="true">
+                  <circle cx="8" cy="8" r="7" />
+                  <path d="m5 8.2 2 2 4-4.4" />
+                </svg>
+                {{ requisito.rotulo }}
+                <span class="sr-only">{{ requisito.atendido ? '(atendido)' : '(pendente)' }}</span>
+              </li>
+            }
+          </ul>
+        </div>
       }
     </div>
 
-    <div class="field">
-      <label for="confirmar-senha">Confirmar senha</label>
-      <div class="input-wrapper" [class.invalid]="mostrarErroConfirmacao(confirmarCtrl)">
-        <!-- ícone de cadeado -->
-        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <div class="mf-field">
+      <label class="mf-field__label" for="confirmar-senha">Confirmar senha</label>
+      <div class="mf-input mf-input--com-acao" [class.mf-input--invalido]="confirmacaoInvalida()">
+        <svg class="mf-input__icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
           <path d="M7 11V7a5 5 0 0 1 10 0v4" />
         </svg>
         <input
           id="confirmar-senha"
-          name="confirmarSenha"
-          [type]="showPassword() ? 'text' : 'password'"
+          [type]="mostrarSenha() ? 'text' : 'password'"
+          formControlName="confirmarSenha"
           placeholder="Repita a senha"
           autocomplete="new-password"
-          [(ngModel)]="confirmarSenha"
-          #confirmarCtrl="ngModel"
-          required
-          (focus)="confirmarFocada.set(true)"
-          [attr.aria-invalid]="mostrarErroConfirmacao(confirmarCtrl)"
-          aria-describedby="confirmar-erro"
+          [attr.aria-invalid]="confirmacaoInvalida()"
+          [attr.aria-describedby]="confirmacaoInvalida() ? 'confirmar-erro' : null"
         />
+        @if (confirmacaoConfere()) {
+          <svg class="confere" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" animate.enter="mf-enter-pop" animate.leave="mf-leave-fade" aria-hidden="true">
+            <path d="m6 12.5 4 4 8-9" />
+          </svg>
+        }
       </div>
-      @if (mostrarErroConfirmacao(confirmarCtrl)) {
-        <span id="confirmar-erro" class="error" role="alert">
-          @if (confirmarCtrl.errors?.['required']) {
+      @if (confirmacaoInvalida()) {
+        <span id="confirmar-erro" class="mf-field__erro" role="alert" animate.enter="mf-enter-drop" animate.leave="mf-leave-fade">
+          @if (form.controls.confirmarSenha.hasError('required')) {
             Repita a senha.
           } @else {
             As senhas não são iguais.
@@ -173,10 +173,36 @@
       }
     </div>
 
-    <button type="button" class="btn btn-primary" (click)="cadastrar(cadastroForm)">Criar conta</button>
+    @if (erroCadastro()) {
+      <div class="mf-alert mf-alert--erro" role="alert" animate.leave="mf-leave-fade">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" x2="12" y1="8" y2="12" />
+          <line x1="12" x2="12.01" y1="16" y2="16" />
+        </svg>
+        <span>{{ erroCadastro() }}</span>
+      </div>
+    }
+
+    <button
+      type="submit"
+      class="mf-btn mf-btn--primario"
+      [disabled]="etapa() === 'enviando'"
+      [attr.aria-busy]="etapa() === 'enviando'"
+    >
+      @if (etapa() === 'enviando') {
+        <span class="mf-spinner" aria-hidden="true"></span>
+        Criando sua conta...
+      } @else {
+        Criar conta
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M5 12h14M13 6l6 6-6 6" />
+        </svg>
+      }
+    </button>
   </form>
 
-  <div class="divider"><span>ou</span></div>
+  <div class="mf-divider"><span>ou</span></div>
 
-  <a class="btn btn-outline" routerLink="/auth/login">Já tenho conta</a>
+  <a class="mf-btn mf-btn--contorno" routerLink="/auth/login">Já tenho conta</a>
 }
