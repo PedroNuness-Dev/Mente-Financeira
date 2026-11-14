@@ -8,29 +8,31 @@
   (click)="aoClicarFundo($event)"
 >
   <form class="caixa" [formGroup]="form" (ngSubmit)="salvar($event)" novalidate>
-    <!-- Coluna do valor: tingida com a cor do tipo -->
-    <section class="resumo">
-      <span class="resumo__alca" aria-hidden="true"></span>
+    <!-- Cabeçalho e rodapé ficam fora da área que rola: fechar e registrar estão sempre à vista -->
+    <span class="cabecalho__alca" aria-hidden="true"></span>
 
-      <header class="resumo__cabecalho">
-        <span class="selo" aria-hidden="true">
-          @if (entrada()) {
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 7 7 17M17 17H7V7" /></svg>
-          } @else {
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10" /></svg>
-          }
-        </span>
-        <div class="resumo__titulos">
-          <h2 id="nova-mov-titulo" class="resumo__titulo">{{ entrada() ? 'Novo depósito' : 'Nova retirada' }}</h2>
-          <p class="resumo__subtitulo">{{ entrada() ? 'Dinheiro que entrou na sua carteira' : 'Dinheiro que saiu da sua carteira' }}</p>
-        </div>
-        <button type="button" class="fechar" aria-label="Fechar" (click)="fechar()" [disabled]="enviando()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
-            <path d="M6 6l12 12M18 6 6 18" />
-          </svg>
-        </button>
-      </header>
+    <header class="cabecalho">
+      <span class="selo" aria-hidden="true">
+        @if (entrada()) {
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 7 7 17M17 17H7V7" /></svg>
+        } @else {
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10" /></svg>
+        }
+      </span>
+      <div class="cabecalho__titulos">
+        <h2 id="nova-mov-titulo" class="cabecalho__titulo">{{ entrada() ? 'Novo depósito' : 'Nova retirada' }}</h2>
+        <p class="cabecalho__subtitulo">{{ entrada() ? 'Dinheiro que entrou na sua carteira' : 'Dinheiro que saiu da sua carteira' }}</p>
+      </div>
+      <button type="button" class="fechar" aria-label="Fechar" (click)="fechar()" [disabled]="enviando()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+          <path d="M6 6l12 12M18 6 6 18" />
+        </svg>
+      </button>
+    </header>
 
+    <div class="corpo">
+      <!-- Coluna do valor: tingida com a cor do tipo -->
+      <section class="resumo">
       <div class="valor-bloco">
         <label class="valor" [class.valor--invalido]="mostrarErroValor()">
           <span class="valor__rotulo">Valor</span>
@@ -188,20 +190,22 @@
         <div class="mf-alert mf-alert--erro" role="alert">{{ erro() }}</div>
       }
 
-      <footer class="acoes">
-        <button type="button" class="mf-btn mf-btn--contorno" (click)="fechar()" [disabled]="enviando()">Cancelar</button>
-        <button type="submit" class="mf-btn mf-btn--primario acoes__principal" [disabled]="enviando()">
-          @if (enviando()) {
-            <span class="mf-spinner" aria-hidden="true"></span>
-            Registrando…
-          } @else {
-            {{ entrada() ? 'Registrar depósito' : 'Registrar retirada' }}
-            @if (valorValido()) {
-              <span class="acoes__valor">{{ formatarMoeda(centavos() / 100) }}</span>
-            }
-          }
-        </button>
-      </footer>
     </section>
+    </div>
+
+    <footer class="acoes">
+      <button type="button" class="mf-btn mf-btn--contorno" (click)="fechar()" [disabled]="enviando()">Cancelar</button>
+      <button type="submit" class="mf-btn mf-btn--primario acoes__principal" [disabled]="enviando()">
+        @if (enviando()) {
+          <span class="mf-spinner" aria-hidden="true"></span>
+          Registrando…
+        } @else {
+          {{ entrada() ? 'Registrar depósito' : 'Registrar retirada' }}
+          @if (valorValido()) {
+            <span class="acoes__valor">{{ formatarMoeda(centavos() / 100) }}</span>
+          }
+        }
+      </button>
+    </footer>
   </form>
 </dialog>
