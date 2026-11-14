@@ -38,7 +38,7 @@ public class AuthenticationService {
 
         UserDetailsImpl userDetails = (UserDetailsImpl) Objects.requireNonNull(authentication.getPrincipal());
 
-        JWTCreateResponse jwtToken = tokenService.generateJWT(userDetails);
+        JWTCreateResponse jwtToken = tokenService.generateToken(userDetails);
 
         log.info("Authentication completed successfully");
 

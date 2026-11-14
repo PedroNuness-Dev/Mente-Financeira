@@ -6,7 +6,6 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -20,23 +19,22 @@ import java.util.Optional;
 @Slf4j
 public class TokenService {
 
-    @Value("${api.security.token.secret}")
-    private String keySecret;
-    @Value("${api.security.token.issuer}")
-    private String issuer;
+    private final SecretKey signingKey;
+    private final String issuer;
 
-    private SecretKey getSigningKey(){
-        return Keys.hmacShaKeyFor(keySecret.getBytes(StandardCharsets.UTF_8));
+    public TokenService(TokenProperties tokenProperties){
+        signingKey = Keys.hmacShaKeyFor(tokenProperties.secret().getBytes(StandardCharsets.UTF_8));
+        issuer = tokenProperties.issuer();
     }
 
-    public JWTCreateResponse generateJWT(UserDetailsImpl userDetails){
+    public JWTCreateResponse generateToken(UserDetailsImpl userDetails){
 
         Instant now = Instant.now();
         Instant expiration = now.plus(2, ChronoUnit.HOURS);
 
         String token = Jwts.builder()
                 .issuer(issuer)
-                .signWith(getSigningKey())
+                .signWith(signingKey)
                 .subject(userDetails.getUsername()) // User's email
                 .claim("id", userDetails.getId())
                 .claim("name", userDetails.getName())
@@ -53,7 +51,7 @@ public class TokenService {
         try {
             Claims claims = Jwts.parser()
                     .requireIssuer(issuer)
-                    .verifyWith(getSigningKey())
+                    .verifyWith(signingKey)
                     .build()
                     .parseSignedClaims(token)
                     .getPayload();
