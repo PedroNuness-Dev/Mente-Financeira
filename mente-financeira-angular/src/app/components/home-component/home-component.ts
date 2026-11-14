@@ -1,7 +1,8 @@
 import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
 import { SplashService } from '../../services/splash/splash-service';
 import { RouterLink } from '@angular/router';
-import { catchError, of } from 'rxjs';
+import { catchError, forkJoin, of } from 'rxjs';
+import { CarteiraService } from '../../services/carteira/carteira-service';
 import { UsuarioService } from '../../services/usuario/usuario-service';
 import { MovimentacaoService } from '../../services/movimentacao/movimentacao-service';
 import { AnaliseMensal } from '../../interfaces/movimentacao/AnaliseMensal';
@@ -19,7 +20,7 @@ const QTD_ULTIMAS = 5;
 
 /**
  * Visão geral: resumo financeiro do mês atual.
- * A existência da carteira (saldo não nulo na análise do mês) decide entre
+ * A existência da carteira (GET /api/user/wallet/check) decide entre
  * o convite de configuração inicial e o painel completo.
  */
 @Component({
@@ -31,6 +32,7 @@ const QTD_ULTIMAS = 5;
 export class HomeComponent implements OnInit {
   private readonly usuarioService = inject(UsuarioService);
   private readonly movimentacaoService = inject(MovimentacaoService);
+  private readonly carteiraService = inject(CarteiraService);
   private readonly splash = inject(SplashService);
   private readonly hoje = new Date();
   private onboardingJaAbriu = false;
@@ -41,11 +43,11 @@ export class HomeComponent implements OnInit {
   /** null = não foi possível carregar (a seção mostra um aviso em vez de quebrar a tela). */
   readonly ultimas = signal<Movimentacao[] | null>([]);
   readonly mostrarOnboarding = signal(false);
+  readonly temCarteira = signal(false);
 
   readonly dataPorExtenso = formatarDataPorExtenso(this.hoje);
   readonly nomeMes = this.hoje.toLocaleDateString('pt-BR', { month: 'long' });
 
-  readonly temCarteira = computed(() => this.analise()?.currentBalance != null);
   readonly saldo = computed(() => this.analise()?.currentBalance ?? 0);
   readonly entradas = computed(() => this.analise()?.income ?? 0);
   readonly saidas = computed(() => this.analise()?.withdrawal ?? 0);
@@ -130,11 +132,15 @@ export class HomeComponent implements OnInit {
     // Só mostra o esqueleto no primeiro carregamento; ao atualizar, mantém o painel na tela
     if (!this.analise()) this.estado.set('carregando');
 
-    this.movimentacaoService.analisarMes(this.hoje.getMonth() + 1, this.hoje.getFullYear()).subscribe({
-      next: (analise) => {
+    forkJoin({
+      check: this.carteiraService.verificarCarteira(),
+      analise: this.movimentacaoService.analisarMes(this.hoje.getMonth() + 1, this.hoje.getFullYear()),
+    }).subscribe({
+      next: ({ check, analise }) => {
+        this.temCarteira.set(check.haveWallet);
         this.analise.set(analise);
         this.estado.set('pronto');
-        if (analise.currentBalance != null) this.carregarUltimas();
+        if (check.haveWallet) this.carregarUltimas();
       },
       error: () => this.estado.set('erro'),
     });

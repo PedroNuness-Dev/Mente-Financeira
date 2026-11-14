@@ -11,3 +11,8 @@ export interface CarteiraResponse {
   balance: number;
   movement: Movimentacao;
 }
+
+/** WalletCheckRequest do backend. */
+export interface CarteiraCheck {
+  haveWallet: boolean;
+}

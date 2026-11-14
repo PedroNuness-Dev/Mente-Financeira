@@ -82,7 +82,7 @@ describe('CadastroComponent', () => {
 
     const cadastro = httpMock.expectOne(`${API}/api/users`);
     expect(cadastro.request.body).toEqual({ name: 'Pedro Nunes', email: 'pedro@teste.com', password: 'Senha123' });
-    cadastro.flush({ id: 1, name: 'Pedro Nunes', email: 'pedro@teste.com', firstLogin: true });
+    cadastro.flush({ id: 1, name: 'Pedro Nunes', email: 'pedro@teste.com' });
 
     expect(component.etapa()).toBe('concluido');
     expect(component.primeiroNome()).toBe('Pedro');

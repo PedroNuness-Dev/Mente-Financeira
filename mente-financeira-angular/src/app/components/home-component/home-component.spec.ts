@@ -7,6 +7,7 @@ import { HomeComponent } from './home-component';
 import { AnaliseMensal } from '../../interfaces/movimentacao/AnaliseMensal';
 
 const API = 'http://localhost:8080/api/user/wallet/movements';
+const URL_CHECK = 'http://localhost:8080/api/user/wallet/check';
 
 describe('HomeComponent', () => {
   let component: HomeComponent;
@@ -41,9 +42,12 @@ describe('HomeComponent', () => {
 
   afterEach(() => httpMock.verify());
 
+  const responderCheck = (haveWallet: boolean) => httpMock.expectOne(URL_CHECK).flush({ haveWallet });
+
   it('busca o resumo do mês atual e calcula o resultado (entradas − saídas)', async () => {
     expect(component.estado()).toBe('carregando');
 
+    responderCheck(true);
     httpMock.expectOne(urlAnalise).flush(analise({ income: 3000, withdrawal: 1200, currentBalance: 5800 }));
     httpMock.expectOne((req) => req.url === API && req.params.get('size') === '5').flush({ content: [] });
     await fixture.whenStable();
@@ -56,6 +60,7 @@ describe('HomeComponent', () => {
   });
 
   it('ordena as saídas por categoria, da maior para a menor, ignorando entradas', async () => {
+    responderCheck(true);
     httpMock.expectOne(urlAnalise).flush(
       analise({
         income: 1000,
@@ -76,6 +81,7 @@ describe('HomeComponent', () => {
   });
 
   it('sem entradas no mês, não calcula percentual gasto', async () => {
+    responderCheck(true);
     httpMock.expectOne(urlAnalise).flush(analise({ withdrawal: 50, currentBalance: 100 }));
     httpMock.expectOne((req) => req.url === API).flush({ content: [] });
     await fixture.whenStable();
@@ -85,6 +91,7 @@ describe('HomeComponent', () => {
   });
 
   it('sem carteira, não busca movimentações e abre a configuração inicial', async () => {
+    responderCheck(false);
     httpMock.expectOne(urlAnalise).flush(analise({ currentBalance: null }));
     await fixture.whenStable();
 
@@ -94,6 +101,7 @@ describe('HomeComponent', () => {
   });
 
   it('se as últimas movimentações falharem, o resto do painel continua de pé', async () => {
+    responderCheck(true);
     httpMock.expectOne(urlAnalise).flush(analise({ currentBalance: 10 }));
     httpMock.expectOne((req) => req.url === API).flush(null, { status: 500, statusText: 'Erro' });
     await fixture.whenStable();
@@ -103,6 +111,7 @@ describe('HomeComponent', () => {
   });
 
   it('mostra o estado de erro quando o resumo falha', async () => {
+    responderCheck(true);
     httpMock.expectOne(urlAnalise).flush(null, { status: 500, statusText: 'Erro' });
     await fixture.whenStable();
 

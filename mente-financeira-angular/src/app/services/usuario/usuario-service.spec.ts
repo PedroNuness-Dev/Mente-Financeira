@@ -16,7 +16,6 @@ describe('UsuarioService', () => {
     email: 'pedro@teste.com',
     creationDate: '2026-11-14',
     updateDate: '2026-11-14',
-    firstLogin: false,
   };
 
   beforeEach(() => {

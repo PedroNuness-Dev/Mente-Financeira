@@ -3,6 +3,5 @@ export interface UsuarioResponse{
     name : string,
     email : string,
     creationDate : string,
-    updateDate : string,
-    firstLogin : boolean
+    updateDate : string
 }
