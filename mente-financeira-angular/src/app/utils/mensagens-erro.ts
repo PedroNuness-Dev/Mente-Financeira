@@ -28,3 +28,10 @@ export function mensagemErroCarteira(erro: HttpErrorResponse): string {
   if (erro.status === 409) return 'Sua carteira já foi configurada. Atualize a página para ver seu painel.';
   return 'Algo deu errado ao criar sua carteira. Tente novamente em instantes.';
 }
+
+export function mensagemErroMovimentacao(erro: HttpErrorResponse): string {
+  if (erro.status === 0) return SEM_CONEXAO;
+  if (erro.status === 400) return 'Confira os dados: o valor mínimo é R$ 1,00 e a descrição é obrigatória.';
+  if (erro.status === 404) return 'Você ainda não tem uma carteira. Configure-a na visão geral.';
+  return 'Algo deu errado ao registrar a movimentação. Tente novamente em instantes.';
+}

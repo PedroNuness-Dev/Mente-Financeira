@@ -6,7 +6,8 @@ import { CarteiraService } from '../../services/carteira/carteira-service';
 import { UsuarioService } from '../../services/usuario/usuario-service';
 import { MovimentacaoService } from '../../services/movimentacao/movimentacao-service';
 import { AnaliseMensal } from '../../interfaces/movimentacao/AnaliseMensal';
-import { Movimentacao } from '../../interfaces/movimentacao/Movimentacao';
+import { Movimentacao, TipoMovimentacao } from '../../interfaces/movimentacao/Movimentacao';
+import { NovaMovimentacaoComponent } from '../nova-movimentacao-component/nova-movimentacao-component';
 import { OnboardingComponent } from '../onboarding-component/onboarding-component';
 import { ContagemMoedaDirective } from '../../directives/contagem-moeda.directive';
 import { formatarMoeda } from '../../utils/formatar-moeda';
@@ -25,7 +26,7 @@ const QTD_ULTIMAS = 5;
  */
 @Component({
   selector: 'app-home-component',
-  imports: [OnboardingComponent, ContagemMoedaDirective, RouterLink],
+  imports: [OnboardingComponent, NovaMovimentacaoComponent, ContagemMoedaDirective, RouterLink],
   templateUrl: './home-component.html',
   styleUrl: './home-component.scss',
 })
@@ -42,10 +43,16 @@ export class HomeComponent implements OnInit {
   readonly analise = signal<AnaliseMensal | null>(null);
   /** null = não foi possível carregar (a seção mostra um aviso em vez de quebrar a tela). */
   readonly ultimas = signal<Movimentacao[] | null>([]);
+  /** Resumo do mês anterior, para comparar. null = sem dados (ou falhou). */
+  readonly analiseAnterior = signal<AnaliseMensal | null>(null);
   readonly mostrarOnboarding = signal(false);
   readonly temCarteira = signal(false);
+  /** Tipo do diálogo de depósito/retirada aberto (null = fechado). */
+  readonly tipoMovimentacao = signal<TipoMovimentacao | null>(null);
 
   readonly dataPorExtenso = formatarDataPorExtenso(this.hoje);
+  private readonly mesAnterior = new Date(this.hoje.getFullYear(), this.hoje.getMonth() - 1, 1);
+  readonly nomeMesAnterior = this.mesAnterior.toLocaleDateString('pt-BR', { month: 'long' });
   readonly nomeMes = this.hoje.toLocaleDateString('pt-BR', { month: 'long' });
 
   readonly saldo = computed(() => this.analise()?.currentBalance ?? 0);
@@ -74,6 +81,31 @@ export class HomeComponent implements OnInit {
     if (uso >= 80) return 'var(--accent-gold)';
     return 'var(--primary-light)';
   });
+
+  /** Variação em % contra o mês anterior (null quando não há base para comparar). */
+  readonly comparativo = computed(() => {
+    const anterior = this.analiseAnterior();
+    const variacao = (atual: number, antes: number | undefined) =>
+      antes && antes > 0 ? Math.round(((atual - antes) / antes) * 100) : null;
+    return {
+      entradas: variacao(this.entradas(), anterior?.income),
+      saidas: variacao(this.saidas(), anterior?.withdrawal),
+      entradasAntes: anterior?.income ?? 0,
+      saidasAntes: anterior?.withdrawal ?? 0,
+    };
+  });
+
+  /** Linhas do card de comparação; o tom diz se a variação é boa ou ruim para o usuário. */
+  readonly linhasComparativo = computed(() => {
+    const c = this.comparativo();
+    const tom = (variacao: number | null, bomSubir: boolean) =>
+      !variacao ? 'neutra' : (variacao > 0) === bomSubir ? 'boa' : 'ruim';
+    return [
+      { nome: 'Entradas', variacao: c.entradas, antes: c.entradasAntes, tom: tom(c.entradas, true) },
+      { nome: 'Saídas', variacao: c.saidas, antes: c.saidasAntes, tom: tom(c.saidas, false) },
+    ];
+  });
+
 
   /** Saídas por categoria, da maior para a menor. */
   readonly gastosPorCategoria = computed(() =>
@@ -140,7 +172,10 @@ export class HomeComponent implements OnInit {
         this.temCarteira.set(check.haveWallet);
         this.analise.set(analise);
         this.estado.set('pronto');
-        if (check.haveWallet) this.carregarUltimas();
+        if (check.haveWallet) {
+          this.carregarUltimas();
+          this.carregarMesAnterior();
+        }
       },
       error: () => this.estado.set('erro'),
     });
@@ -149,6 +184,26 @@ export class HomeComponent implements OnInit {
   aoCriarCarteira(): void {
     this.mostrarOnboarding.set(false);
     this.carregar();
+  }
+
+  abrirMovimentacao(tipo: TipoMovimentacao): void {
+    this.tipoMovimentacao.set(tipo);
+  }
+
+  /** Depósito ou retirada registrada: recarrega saldo, totais e últimas movimentações. */
+  aoRegistrarMovimentacao(): void {
+    this.tipoMovimentacao.set(null);
+    this.carregar();
+  }
+
+  formatarMoeda = formatarMoeda;
+
+  private carregarMesAnterior(): void {
+    // Comparativo é complementar: se falhar, o card só mostra que não há base
+    this.movimentacaoService
+      .analisarMes(this.mesAnterior.getMonth() + 1, this.mesAnterior.getFullYear())
+      .pipe(catchError(() => of(null)))
+      .subscribe((analise) => this.analiseAnterior.set(analise));
   }
 
   private carregarUltimas(): void {

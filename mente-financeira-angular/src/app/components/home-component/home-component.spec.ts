@@ -15,6 +15,8 @@ describe('HomeComponent', () => {
   let httpMock: HttpTestingController;
   const hoje = new Date();
   const urlAnalise = `${API}/${hoje.getMonth() + 1}/${hoje.getFullYear()}`;
+  const anterior = new Date(hoje.getFullYear(), hoje.getMonth() - 1, 1);
+  const urlAnterior = `${API}/${anterior.getMonth() + 1}/${anterior.getFullYear()}`;
 
   const analise = (parcial: Partial<AnaliseMensal>): AnaliseMensal => ({
     totalAmount: 0,
@@ -40,7 +42,11 @@ describe('HomeComponent', () => {
     fixture.detectChanges();
   });
 
-  afterEach(() => httpMock.verify());
+  afterEach(() => {
+    // O mês anterior é buscado sempre que há carteira; responde vazio onde o teste não liga para ele
+    httpMock.match(urlAnterior).forEach((req) => req.flush(analise({})));
+    httpMock.verify();
+  });
 
   const responderCheck = (haveWallet: boolean) => httpMock.expectOne(URL_CHECK).flush({ haveWallet });
 
@@ -116,5 +122,27 @@ describe('HomeComponent', () => {
     await fixture.whenStable();
 
     expect(component.estado()).toBe('erro');
+  });
+
+  it('compara as saídas com o mês anterior', async () => {
+    responderCheck(true);
+    httpMock.expectOne(urlAnalise).flush(analise({ income: 1000, withdrawal: 600, currentBalance: 400 }));
+    httpMock.expectOne((req) => req.url === API).flush({ content: [] });
+    httpMock.expectOne(urlAnterior).flush(analise({ income: 1000, withdrawal: 400 }));
+    await fixture.whenStable();
+
+    expect(component.comparativo().saidas).toBe(50);
+  });
+
+  it('se o mês anterior falhar, o comparativo fica sem base', async () => {
+    responderCheck(true);
+    httpMock.expectOne(urlAnalise).flush(analise({ income: 100, currentBalance: 100 }));
+    httpMock.expectOne((req) => req.url === API).flush({ content: [] });
+    httpMock.expectOne(urlAnterior).flush(null, { status: 500, statusText: 'Erro' });
+    await fixture.whenStable();
+
+    expect(component.analiseAnterior()).toBeNull();
+    expect(component.comparativo().saidas).toBeNull();
+    expect(component.estado()).toBe('pronto');
   });
 });

@@ -1,0 +1,125 @@
+<dialog
+  #dialogo
+  class="dialogo"
+  [class.dialogo--fechando]="fechando()"
+  aria-labelledby="nova-mov-titulo"
+  (cancel)="aoCancelar($event)"
+  (click)="aoClicarFundo($event)"
+>
+  <form class="caixa" [formGroup]="form" (ngSubmit)="salvar($event)" novalidate>
+    <header class="caixa__cabecalho">
+      <div class="caixa__titulos">
+        <span class="selo" [class.selo--entrada]="entrada()" aria-hidden="true">
+          @if (entrada()) {
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 7 7 17M17 17H7V7" /></svg>
+          } @else {
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M7 7h10v10" /></svg>
+          }
+        </span>
+        <div>
+          <h2 id="nova-mov-titulo" class="caixa__titulo">{{ entrada() ? 'Novo depósito' : 'Nova retirada' }}</h2>
+          <p class="caixa__subtitulo">{{ entrada() ? 'Dinheiro que entrou na sua carteira' : 'Dinheiro que saiu da sua carteira' }}</p>
+        </div>
+      </div>
+      <button type="button" class="fechar" aria-label="Fechar" (click)="fechar()" [disabled]="enviando()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+          <path d="M6 6l12 12M18 6 6 18" />
+        </svg>
+      </button>
+    </header>
+
+    <label class="valor" [class.valor--invalido]="mostrarErroValor()" [style.--tom]="entrada() ? 'var(--primary-light)' : 'var(--accent-gold)'">
+      <span class="sr-only">Valor em reais</span>
+      <span class="valor__prefixo" aria-hidden="true">R$</span>
+      <input
+        #campoValor
+        class="valor__campo"
+        type="text"
+        inputmode="numeric"
+        autocomplete="off"
+        maxlength="20"
+        [value]="valorTexto()"
+        (input)="aoDigitarValor($event)"
+        [disabled]="enviando()"
+        [attr.aria-invalid]="mostrarErroValor()"
+        aria-describedby="valor-ajuda"
+      />
+    </label>
+    <p id="valor-ajuda" class="ajuda" [class.ajuda--erro]="mostrarErroValor()">
+      @if (mostrarErroValor()) {
+        Informe um valor de pelo menos R$ 1,00.
+      } @else if (saldoNegativo()) {
+        <span class="ajuda--aviso">Com essa retirada, seu saldo fica em {{ saldoNegativo() }}.</span>
+      } @else {
+        Digite só os números. Mínimo de R$ 1,00.
+      }
+    </p>
+
+    <fieldset class="mf-field categorias">
+      <legend class="mf-field__label">Categoria</legend>
+      <div class="busca">
+        <svg class="busca__icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" />
+        </svg>
+        <input
+          class="campo busca__campo"
+          type="search"
+          placeholder="Buscar categoria"
+          aria-label="Buscar categoria pelo nome"
+          autocomplete="off"
+          [value]="busca()"
+          (input)="aoBuscar($event)"
+          (keydown.enter)="$event.preventDefault()"
+          [disabled]="enviando()"
+        />
+      </div>
+
+      <div class="opcoes" [class.opcoes--invalido]="campoInvalido('categoria')" role="radiogroup" aria-label="Categorias">
+        @for (categoria of categoriasFiltradas(); track categoria.valor) {
+          <label class="opcao">
+            <input type="radio" formControlName="categoria" [value]="categoria.valor" />
+            <span>{{ categoria.rotulo }}</span>
+          </label>
+        } @empty {
+          <p class="opcoes__vazio">Nenhuma categoria com “{{ busca() }}”.</p>
+        }
+      </div>
+      @if (campoInvalido('categoria')) {
+        <span class="mf-field__erro">Escolha uma categoria.</span>
+      }
+    </fieldset>
+
+    <div class="mf-field">
+      <label class="mf-field__label" for="nova-mov-descricao">Descrição</label>
+      <input
+        id="nova-mov-descricao"
+        class="campo"
+        [class.campo--invalido]="campoInvalido('descricao')"
+        type="text"
+        formControlName="descricao"
+        [attr.maxlength]="maxDescricao"
+        [placeholder]="entrada() ? 'Ex.: salário de novembro' : 'Ex.: compras do mês'"
+        [attr.aria-invalid]="campoInvalido('descricao')"
+      />
+      @if (campoInvalido('descricao')) {
+        <span class="mf-field__erro">Descreva a movimentação.</span>
+      }
+    </div>
+
+    @if (erro()) {
+      <div class="mf-alert mf-alert--erro" role="alert">{{ erro() }}</div>
+    }
+
+    <footer class="caixa__acoes">
+      <button type="button" class="mf-btn mf-btn--contorno" (click)="fechar()" [disabled]="enviando()">Cancelar</button>
+      <button type="submit" class="mf-btn mf-btn--primario" [disabled]="enviando()">
+        @if (enviando()) {
+          <span class="mf-spinner" aria-hidden="true"></span>
+          Registrando…
+        } @else {
+          {{ entrada() ? 'Registrar depósito' : 'Registrar retirada' }}
+        }
+      </button>
+    </footer>
+  </form>
+</dialog>

@@ -2,7 +2,6 @@
   display: flex;
   flex-direction: column;
   gap: 2rem;
-  max-width: 1280px;
 }
 
 /* ---------- Cabeçalho ---------- */
@@ -12,6 +11,11 @@
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 1rem 2rem;
+
+  &__acoes {
+    display: flex;
+    gap: 0.6rem;
+  }
 
   &__textos {
     display: flex;
@@ -38,9 +42,90 @@
 
 /* ---------- Painel ---------- */
 .painel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 21rem;
+  align-items: start;
+  gap: 1.25rem;
+
+  &__principal {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    min-width: 0;
+  }
+}
+
+/* ---------- Coluna lateral ---------- */
+.lateral {
+  position: sticky;
+  top: 6rem; /* fica abaixo da navbar flutuante ao rolar */
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1rem;
+}
+
+.comparativo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  list-style: none;
+
+  &__linha {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  &__textos {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    min-width: 0;
+
+    strong {
+      font-size: 0.9rem;
+    }
+
+    span {
+      font-size: 0.78rem;
+      color: var(--ink-soft);
+    }
+  }
+}
+
+.variacao {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-shrink: 0;
+  padding: 0.25rem 0.6rem;
+  border-radius: 99px;
+  background: var(--surface-sunken);
+  color: var(--ink-soft);
+  font-size: 0.8rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  animation: mf-pop var(--dur-slow) var(--ease-bounce) 400ms backwards;
+
+  svg {
+    width: 0.85rem;
+    height: 0.85rem;
+
+    &.desce {
+      rotate: 180deg;
+    }
+  }
+
+  &--boa {
+    background: color-mix(in srgb, var(--primary-light) 16%, transparent);
+    color: var(--primary-light);
+  }
+
+  &--ruim {
+    background: var(--danger-ring);
+    color: var(--danger);
+  }
 }
 
 .kpis {
@@ -77,8 +162,12 @@
 
 .secoes {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem;
+
+  &__largo {
+    grid-column: 1 / -1;
+  }
 }
 
 .uso {
@@ -201,23 +290,36 @@
 }
 
 /* ---------- Responsividade ---------- */
+/* Telas médias: a coluna lateral desce e vira uma faixa de 3 cards abaixo do painel */
 @media (max-width: 1180px) {
+  .painel {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .lateral {
+    position: static;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+  }
+
   .kpis {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+}
 
-  .secoes {
+@media (min-width: 1181px) and (max-width: 1360px) {
+  .kpis {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-
-    > :last-child {
-      grid-column: 1 / -1;
-    }
   }
 }
 
 @media (max-width: 720px) {
-  .cabecalho__acao {
+  .cabecalho__acoes {
     width: 100%;
+  }
+
+  .cabecalho__acao {
+    flex: 1;
   }
 
   .kpis,

@@ -6,12 +6,20 @@
   </div>
 
   @if (temCarteira()) {
-    <a class="mf-btn mf-btn--primario cabecalho__acao" routerLink="/movimentacoes">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
-        <path d="M12 5v14M5 12h14" />
-      </svg>
-      Nova movimentação
-    </a>
+    <div class="cabecalho__acoes">
+      <button type="button" class="mf-btn mf-btn--contorno cabecalho__acao" (click)="abrirMovimentacao('ENTRADA')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M17 7 7 17M17 17H7V7" />
+        </svg>
+        Depositar
+      </button>
+      <button type="button" class="mf-btn mf-btn--primario cabecalho__acao" (click)="abrirMovimentacao('RETIRADA')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M7 17 17 7M7 7h10v10" />
+        </svg>
+        Retirar
+      </button>
+    </div>
   }
 </header>
 
@@ -45,7 +53,8 @@
 
   @case ('pronto') {
     @if (temCarteira()) {
-      <div class="painel mf-stagger">
+      <div class="painel">
+       <div class="painel__principal mf-stagger">
         <!-- Números do mês -->
         <section class="kpis" aria-label="Resumo do mês">
           <article class="mf-stat mf-stat--destaque kpi">
@@ -181,7 +190,7 @@
           </section>
 
           <!-- Últimas movimentações -->
-          <section class="mf-card" aria-labelledby="titulo-ultimas">
+          <section class="mf-card secoes__largo" aria-labelledby="titulo-ultimas">
             <header class="mf-card__cabecalho">
               <h2 id="titulo-ultimas" class="mf-card__titulo">Últimas movimentações</h2>
               <a class="mf-link" routerLink="/movimentacoes">Ver todas</a>
@@ -219,6 +228,38 @@
             }
           </section>
         </div>
+       </div>
+
+        <!-- Coluna lateral: comparação com o mês anterior -->
+        <aside class="lateral mf-stagger" aria-label="Análises rápidas">
+          <section class="mf-card" aria-labelledby="titulo-comparativo">
+            <header class="mf-card__cabecalho">
+              <h2 id="titulo-comparativo" class="mf-card__titulo">Comparado a {{ nomeMesAnterior }}</h2>
+            </header>
+
+            <ul class="comparativo">
+              @for (linha of linhasComparativo(); track linha.nome) {
+                <li class="comparativo__linha">
+                  <div class="comparativo__textos">
+                    <strong>{{ linha.nome }}</strong>
+                    <span>{{ formatarMoeda(linha.antes) }} em {{ nomeMesAnterior }}</span>
+                  </div>
+                  @if (linha.variacao === null) {
+                    <span class="variacao">sem base</span>
+                  } @else {
+                    <span class="variacao" [class]="'variacao--' + linha.tom">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" [class.desce]="linha.variacao < 0">
+                        <path d="M12 19V5M6 11l6-6 6 6" />
+                      </svg>
+                      {{ linha.variacao > 0 ? '+' : '' }}{{ linha.variacao }}%
+                    </span>
+                  }
+                </li>
+              }
+            </ul>
+          </section>
+
+        </aside>
       </div>
     } @else {
       <!-- Sem carteira: convite para a configuração inicial -->
@@ -250,4 +291,13 @@
 
 @if (mostrarOnboarding()) {
   <app-onboarding-component (concluido)="aoCriarCarteira()" (fechado)="mostrarOnboarding.set(false)" />
+}
+
+@if (tipoMovimentacao(); as tipo) {
+  <app-nova-movimentacao-component
+    [tipo]="tipo"
+    [saldoAtual]="analise()?.currentBalance ?? null"
+    (concluido)="aoRegistrarMovimentacao()"
+    (fechado)="tipoMovimentacao.set(null)"
+  />
 }

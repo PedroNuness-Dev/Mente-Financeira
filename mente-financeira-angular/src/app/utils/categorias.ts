@@ -27,3 +27,10 @@ export function rotuloCategoria(categoria: string): string {
   const texto = categoria.replace(/_/g, ' ').toLowerCase();
   return texto.charAt(0).toUpperCase() + texto.slice(1);
 }
+
+/** Categorias oferecidas em cada tipo de movimentação (o backend aceita qualquer uma). */
+export const CATEGORIAS_ENTRADA = ['SALARIO', 'RENDIMENTOS', 'DEPOSITO', 'TRANSFERENCIA', 'INVESTIMENTOS', 'PRESENTES', 'OUTROS'];
+export const CATEGORIAS_SAIDA = [
+  'ALIMENTACAO', 'MERCADO', 'TRANSPORTE', 'MORADIA', 'CONTAS_FIXAS', 'SAUDE', 'EDUCACAO', 'LAZER',
+  'VESTUARIO', 'ASSINATURAS', 'VIAGEM', 'PET', 'PRESENTES', 'INVESTIMENTOS', 'TRANSFERENCIA', 'OUTROS',
+];
