@@ -21,3 +21,10 @@ export function mensagemErroCadastro(erro: HttpErrorResponse): string {
   }
   return 'Algo deu errado ao criar sua conta. Tente novamente em instantes.';
 }
+
+export function mensagemErroCarteira(erro: HttpErrorResponse): string {
+  if (erro.status === 0) return SEM_CONEXAO;
+  if (erro.status === 400) return 'Valor inválido. O saldo inicial precisa ser de pelo menos R$ 1,00.';
+  if (erro.status === 409) return 'Sua carteira já foi configurada. Atualize a página para ver seu painel.';
+  return 'Algo deu errado ao criar sua carteira. Tente novamente em instantes.';
+}

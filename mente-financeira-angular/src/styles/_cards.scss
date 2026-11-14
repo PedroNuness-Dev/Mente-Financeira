@@ -1,0 +1,218 @@
+/* =========================================================================
+   Blocos de painel: card, medidor, ranking de barras, lista, estado vazio
+   e esqueleto de carregamento. Usados na home e prontos para as outras telas.
+   ========================================================================= */
+
+/* ---------- Card ---------- */
+.mf-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 1.25rem 1.4rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+
+  &__cabecalho {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.1rem;
+  }
+
+  &__titulo {
+    font-size: 1rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+
+  &__apoio {
+    font-size: 0.8rem;
+    color: var(--ink-soft);
+  }
+
+  &__cabecalho > :last-child {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 720px) {
+    padding: 1.1rem 1rem;
+  }
+}
+
+/* ---------- Medidor: uma razão contra um limite ----------
+   A trilha é um tom mais claro da mesma cor do preenchimento. */
+.mf-meter {
+  --tom: var(--primary-light);
+  height: 0.5rem;
+  border-radius: 99px;
+  background: color-mix(in srgb, var(--tom) 18%, transparent);
+  overflow: hidden;
+
+  &__valor {
+    height: 100%;
+    border-radius: inherit;
+    background: var(--tom);
+    transform-origin: left;
+    animation: mf-crescer 900ms var(--ease-out) 200ms backwards;
+    transition: width var(--dur-slower) var(--ease-out);
+  }
+}
+
+@keyframes mf-crescer {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+/* ---------- Ranking: uma barra por linha, maior primeiro, uma cor só ---------- */
+.mf-rank {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  list-style: none;
+
+  &__linha {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.35rem 1rem;
+    align-items: baseline;
+  }
+
+  &__nome {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  &__valor {
+    font-size: 0.88rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink);
+
+    small {
+      margin-left: 0.4rem;
+      font-size: 0.76rem;
+      font-weight: 600;
+      color: var(--ink-soft);
+    }
+  }
+
+  .mf-meter {
+    grid-column: 1 / -1;
+  }
+}
+
+/* ---------- Lista de registros ---------- */
+.mf-lista {
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.75rem 0;
+    border-top: 1px solid var(--border);
+
+    &:first-child {
+      border-top: none;
+      padding-top: 0;
+    }
+
+    &:last-child {
+      padding-bottom: 0;
+    }
+  }
+
+  &__icone {
+    --tom: var(--primary-light);
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: var(--radius-sm);
+    background: color-mix(in srgb, var(--tom) 16%, transparent);
+    color: var(--tom);
+
+    svg {
+      width: 1.1rem;
+      height: 1.1rem;
+    }
+  }
+
+  &__textos {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__titulo {
+    font-size: 0.9rem;
+    font-weight: 700;
+  }
+
+  &__apoio {
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+  }
+
+  &__valor {
+    font-size: 0.92rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+}
+
+/* ---------- Estado vazio ---------- */
+.mf-vazio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  flex: 1;
+  padding: 1.5rem 1rem;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-md);
+  text-align: center;
+
+  svg {
+    width: 1.6rem;
+    height: 1.6rem;
+    margin-bottom: 0.35rem;
+    color: var(--ink-faint);
+  }
+
+  strong {
+    font-size: 0.92rem;
+  }
+
+  span {
+    max-width: 22rem;
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+  }
+}
+
+/* ---------- Esqueleto de carregamento ---------- */
+.mf-esqueleto {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(90deg, var(--surface) 25%, var(--surface-sunken) 50%, var(--surface) 75%);
+  background-size: 200% 100%;
+  animation: mf-brilho 1.4s linear infinite;
+}
+
+@keyframes mf-brilho {
+  to {
+    background-position: -200% 0;
+  }
+}

@@ -93,6 +93,43 @@
     font-weight: 600;
     color: var(--ink-soft);
   }
+
+  /* Selo de estado: sempre ícone + texto (nunca só cor) */
+  &__estado {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    align-self: flex-start;
+    font-size: 0.74rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+
+    svg {
+      width: 0.9rem;
+      height: 0.9rem;
+      color: var(--tom);
+    }
+  }
+
+  /* O número principal da tela: card preenchido com a cor da marca */
+  &--destaque {
+    border-color: var(--primary);
+    background: var(--primary);
+
+    .mf-stat__icone {
+      background: rgba(255, 255, 255, 0.16);
+      color: #fff;
+    }
+
+    .mf-stat__valor {
+      color: #fff;
+    }
+
+    .mf-stat__rotulo,
+    .mf-stat__estado {
+      color: rgba(255, 255, 255, 0.82);
+    }
+  }
 }
 
 /* ---------- Campo ---------- */
@@ -240,6 +277,7 @@
   border-radius: var(--radius-sm);
   font-size: 0.95rem;
   font-weight: 700;
+  white-space: nowrap;
   text-decoration: none;
   cursor: pointer;
   transition:

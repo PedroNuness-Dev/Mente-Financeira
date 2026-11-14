@@ -1,150 +1,207 @@
-<div class="overlay" (click)="fechar()">
-  <div class="onboarding-modal" (click)="$event.stopPropagation()">
-    <div class="onboarding-modal__progresso">
-      <div class="onboarding-modal__progresso-preenchido" [style.width.%]="progresso()"></div>
-    </div>
+<dialog
+  #dialogo
+  class="onboarding"
+  [class.onboarding--fechando]="fechando()"
+  aria-labelledby="onboarding-titulo"
+  (cancel)="aoCancelar($event)"
+  (click)="aoClicarFundo($event)"
+>
+  <div class="onboarding__caixa">
+    <!-- Lateral da marca: mascote e etapas (vira uma faixa compacta no celular) -->
+    <aside class="lateral">
+      <img class="lateral__logo" src="logo-branca.png" alt="Mente Financeira" />
 
-    <button class="onboarding-modal__fechar" (click)="fechar()" aria-label="Fechar">✕</button>
-
-    <span class="onboarding-modal__passo">Passo {{ passoAtual() + 1 }} de {{ totalPassos }}</span>
-
-    @if (passoAtual() === 0) {
-      <div class="passo passo--entrada">
-        <div class="passo__icone passo__icone--gold">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <path d="M12 2l2.4 6.8L21 12l-6.6 3.2L12 22l-2.4-6.8L3 12l6.6-3.2L12 2z" />
-          </svg>
-        </div>
-        <h2 class="passo__titulo">Bem-vindo à Mente Financeira</h2>
-        <p class="passo__texto">
-          Vamos te mostrar rapidinho como o app funciona, e configurar sua carteira para você
-          começar a organizar sua vida financeira de verdade.
-        </p>
-      </div>
-    }
-
-    @if (passoAtual() === 1) {
-      <div class="passo passo--entrada">
-        <h2 class="passo__titulo">Seu menu, em três partes</h2>
-        <p class="passo__texto">Cada seção da barra lateral cuida de uma coisa:</p>
-
-        <ul class="passo__lista">
-          <li class="passo__item">
-            <span class="passo__item-icone passo__item-icone--green">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
-                <rect x="3" y="6" width="18" height="13" rx="2" />
-                <path d="M3 10h18" />
-                <path d="M7 14h3" />
-              </svg>
+      <ol class="etapas">
+        @for (passo of passos; track passo; let i = $index) {
+          <li
+            class="etapa"
+            [class.etapa--ativa]="i === passoAtual()"
+            [class.etapa--feita]="i < passoAtual()"
+            [attr.aria-current]="i === passoAtual() ? 'step' : null"
+          >
+            <span class="etapa__numero">
+              @if (i < passoAtual()) {
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="m5 12.5 4.5 4.5L19 7.5" />
+                </svg>
+              } @else {
+                {{ i + 1 }}
+              }
             </span>
-            <div>
-              <strong>Visão geral</strong>
-              <p>Seu resumo do mês: saldo, entradas, saídas e últimas movimentações.</p>
-            </div>
+            <span class="etapa__nome">{{ passo }}</span>
           </li>
+        }
+      </ol>
 
-          <li class="passo__item">
-            <span class="passo__item-icone passo__item-icone--gold">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
-                <path d="M4 7h13M17 7l-3-3M17 7l-3 3" />
-                <path d="M20 17H7M7 17l3-3M7 17l3 3" />
-              </svg>
-            </span>
-            <div>
-              <strong>Movimentações</strong>
-              <p>Onde você registra e acompanha cada entrada e saída de dinheiro.</p>
+      <img class="lateral__mascote" src="mascote-login.png" alt="" width="984" height="690" />
+    </aside>
+
+    <form class="conteudo" (submit)="salvar($event)" novalidate>
+      <button type="button" class="conteudo__fechar" (click)="fechar()" [disabled]="enviando()" aria-label="Fechar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <path d="M6 6l12 12M18 6 6 18" />
+        </svg>
+      </button>
+
+      <div class="conteudo__passo">
+        <span class="mf-eyebrow">Passo {{ passoAtual() + 1 }} de {{ passos.length }}</span>
+
+        @switch (passoAtual()) {
+          @case (0) {
+            <div class="passo">
+              <h2 id="onboarding-titulo" class="passo__titulo">Boas-vindas à Mente Financeira</h2>
+              <p class="passo__texto">
+                Em menos de um minuto você entende como o app funciona e configura sua carteira,
+                o ponto de partida para organizar sua vida financeira.
+              </p>
+
+              <ul class="destaques">
+                <li class="mf-stat" style="--tom: var(--primary-light)">
+                  <strong class="mf-stat__rotulo">Registre</strong>
+                  <span>Cada entrada e saída de dinheiro.</span>
+                </li>
+                <li class="mf-stat" style="--tom: var(--accent-gold)">
+                  <strong class="mf-stat__rotulo">Entenda</strong>
+                  <span>Para onde seu dinheiro está indo.</span>
+                </li>
+                <li class="mf-stat" style="--tom: var(--primary)">
+                  <strong class="mf-stat__rotulo">Acompanhe</strong>
+                  <span>Sua evolução mês a mês.</span>
+                </li>
+              </ul>
             </div>
-          </li>
-
-          <li class="passo__item">
-            <span class="passo__item-icone passo__item-icone--blue">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
-                <path d="M12 2v10l7 4" />
-                <circle cx="12" cy="12" r="10" />
-              </svg>
-            </span>
-            <div>
-              <strong>Categorias</strong>
-              <p>Veja o quanto cada categoria (mercado, lazer, contas...) pesa no seu mês.</p>
-            </div>
-          </li>
-        </ul>
-      </div>
-    }
-
-    @if (passoAtual() === 2) {
-      <div class="passo passo--entrada">
-        <div class="passo__icone passo__icone--blue">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <rect x="3" y="4" width="18" height="17" rx="2" />
-            <path d="M3 9h18M8 2v4M16 2v4" />
-            <path d="M9 14l-2 2 2 2M15 14l2 2-2 2" />
-          </svg>
-        </div>
-        <h2 class="passo__titulo">Sempre no mês certo</h2>
-        <p class="passo__texto">
-          A Visão geral mostra os dados do <strong>mês atual</strong> por padrão, mas você pode
-          navegar entre os meses anteriores para revisar como foi seu histórico, tudo direto por
-          ali, sem precisar sair da tela.
-        </p>
-      </div>
-    }
-
-    @if (passoAtual() === 3) {
-      <div class="passo passo--entrada">
-        <div class="passo__icone passo__icone--green">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-          </svg>
-        </div>
-        <h2 class="passo__titulo">Qual é o seu saldo atual?</h2>
-        <p class="passo__texto">
-          Isso vai servir de ponto de partida para calcularmos seu saldo ao longo do tempo.
-        </p>
-
-        <div class="campo-saldo">
-          <span class="campo-saldo__prefixo">R$</span>
-          <input
-            class="campo-saldo__input"
-            type="text"
-            inputmode="decimal"
-            placeholder="0,00"
-            [value]="saldoTexto()"
-            (input)="onInputSaldo($any($event.target).value)"
-          />
-        </div>
-
-        <div class="chips">
-          @for (valor of sugestoes; track valor) {
-            <button class="chip" (click)="selecionarSugestao(valor)">R$ {{ valor }}</button>
           }
-        </div>
-      </div>
-    }
 
-    <div class="onboarding-modal__rodape">
-      <div class="pontos">
-        @for (i of [0, 1, 2, 3]; track i) {
-          <span class="ponto" [class.ponto--ativo]="i === passoAtual()"></span>
+          @case (1) {
+            <div class="passo">
+              <h2 id="onboarding-titulo" class="passo__titulo">Seu menu, em três partes</h2>
+              <p class="passo__texto">Cada seção da barra lateral cuida de uma coisa:</p>
+
+              <ul class="mf-lista">
+                <li class="mf-lista__item">
+                  <span class="mf-lista__icone">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                      <rect x="3" y="6" width="18" height="13" rx="2" />
+                      <path d="M3 10h18M7 14h3" />
+                    </svg>
+                  </span>
+                  <span class="mf-lista__textos">
+                    <strong class="mf-lista__titulo">Visão geral</strong>
+                    <span class="mf-lista__apoio">O resumo do mês: saldo, entradas, saídas e últimas movimentações.</span>
+                  </span>
+                </li>
+                <li class="mf-lista__item">
+                  <span class="mf-lista__icone" style="--tom: var(--accent-gold)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M4 7h13M17 7l-3-3M17 7l-3 3M20 17H7M7 17l3-3M7 17l3 3" />
+                    </svg>
+                  </span>
+                  <span class="mf-lista__textos">
+                    <strong class="mf-lista__titulo">Movimentações</strong>
+                    <span class="mf-lista__apoio">Onde você registra e acompanha cada entrada e saída.</span>
+                  </span>
+                </li>
+                <li class="mf-lista__item">
+                  <span class="mf-lista__icone" style="--tom: var(--primary)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+                      <circle cx="12" cy="12" r="9" />
+                      <path d="M12 3v9l6.5 3.5" />
+                    </svg>
+                  </span>
+                  <span class="mf-lista__textos">
+                    <strong class="mf-lista__titulo">Categorias e relatórios</strong>
+                    <span class="mf-lista__apoio">O quanto mercado, lazer, contas e outras categorias pesam no seu mês.</span>
+                  </span>
+                </li>
+              </ul>
+            </div>
+          }
+
+          @case (2) {
+            <div class="passo">
+              <h2 id="onboarding-titulo" class="passo__titulo">Quanto você tem hoje?</h2>
+              <p class="passo__texto">
+                Esse valor vira o saldo inicial da sua carteira. A partir dele calculamos tudo o que entra e sai.
+              </p>
+
+              <label class="saldo" [class.saldo--invalido]="mostrarErroSaldo()">
+                <span class="sr-only">Saldo inicial em reais</span>
+                <span class="saldo__prefixo" aria-hidden="true">R$</span>
+                <input
+                  #campoSaldo
+                  class="saldo__campo"
+                  type="text"
+                  inputmode="numeric"
+                  autocomplete="off"
+                  maxlength="20"
+                  [value]="saldoTexto()"
+                  (input)="aoDigitarSaldo($event)"
+                  [disabled]="enviando()"
+                  [attr.aria-invalid]="mostrarErroSaldo()"
+                  aria-describedby="saldo-ajuda"
+                />
+              </label>
+
+              <p id="saldo-ajuda" class="saldo__ajuda" [class.saldo__ajuda--erro]="mostrarErroSaldo()">
+                @if (mostrarErroSaldo()) {
+                  Informe um valor de pelo menos R$ 1,00.
+                } @else {
+                  Digite só os números. Mínimo de R$ 1,00.
+                }
+              </p>
+
+              <div class="sugestoes" role="group" aria-label="Valores sugeridos">
+                @for (valor of sugestoes; track valor) {
+                  <button
+                    type="button"
+                    class="sugestao"
+                    [class.sugestao--ativa]="centavos() === valor * 100"
+                    [disabled]="enviando()"
+                    (click)="selecionarSugestao(valor)"
+                  >
+                    R$ {{ valor.toLocaleString('pt-BR') }}
+                  </button>
+                }
+              </div>
+
+              @if (erro()) {
+                <div class="mf-alert mf-alert--erro" role="alert">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" x2="12" y1="8" y2="12" />
+                    <line x1="12" x2="12.01" y1="16" y2="16" />
+                  </svg>
+                  <span>{{ erro() }}</span>
+                </div>
+              }
+            </div>
+          }
         }
       </div>
 
-      <div class="botoes">
+      <footer class="conteudo__rodape">
         @if (passoAtual() > 0) {
-          <button class="botao botao--secundario" (click)="voltar()">Voltar</button>
+          <button type="button" class="mf-btn mf-btn--contorno" (click)="voltar()" [disabled]="enviando()">Voltar</button>
         }
 
-        @if (passoAtual() < totalPassos - 1) {
-          <button class="botao botao--primario" (click)="avancar()">
-            Próximo
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+        @if (ultimoPasso()) {
+          <button type="submit" class="mf-btn mf-btn--primario" [disabled]="enviando()" [attr.aria-busy]="enviando()">
+            @if (enviando()) {
+              <span class="mf-spinner" aria-hidden="true"></span>
+              Criando carteira...
+            } @else {
+              Criar minha carteira
+            }
           </button>
         } @else {
-          <button class="botao botao--primario" [disabled]="!saldoValido" (click)="salvar()">
-            Salvar e concluir
+          <button type="button" class="mf-btn mf-btn--primario" (click)="avancar()">
+            Continuar
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M5 12h14M13 6l6 6-6 6" />
+            </svg>
           </button>
         }
-      </div>
-    </div>
+      </footer>
+    </form>
   </div>
-</div>
+</dialog>

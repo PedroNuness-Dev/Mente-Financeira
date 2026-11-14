@@ -340,8 +340,13 @@
     display: none;
   }
 
-  .sidebar__link {
+  .sidebar__link,
+  .sidebar__tema {
     justify-content: center;
+  }
+
+  .sidebar__tema span {
+    display: none;
   }
 
   .shell__content {

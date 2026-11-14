@@ -1,52 +1,253 @@
-@if (usuario(); as u) {
-  <header class="hero">
-    @if (u.firstLogin) {
-      <span class="hero__badge">Novo por aqui</span>
+<header class="cabecalho">
+  <div class="cabecalho__textos">
+    <span class="mf-eyebrow">Visão geral de {{ nomeMes }}</span>
+    <h1 class="cabecalho__titulo">{{ saudacao }}, {{ primeiroNome }}</h1>
+    <p class="cabecalho__data">{{ dataPorExtenso }}</p>
+  </div>
+
+  @if (temCarteira()) {
+    <a class="mf-btn mf-btn--primario cabecalho__acao" routerLink="/movimentacoes">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+        <path d="M12 5v14M5 12h14" />
+      </svg>
+      Nova movimentação
+    </a>
+  }
+</header>
+
+@switch (estado()) {
+  @case ('carregando') {
+    <div class="painel" aria-busy="true" aria-label="Carregando seu resumo">
+      <div class="kpis">
+        @for (i of [1, 2, 3, 4]; track i) {
+          <div class="mf-esqueleto esqueleto--kpi"></div>
+        }
+      </div>
+      <div class="secoes">
+        @for (i of [1, 2, 3]; track i) {
+          <div class="mf-esqueleto esqueleto--card"></div>
+        }
+      </div>
+    </div>
+  }
+
+  @case ('erro') {
+    <div class="mf-vazio falha" role="alert">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 9v4M12 17h.01" />
+        <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" />
+      </svg>
+      <strong>Não foi possível carregar seu resumo</strong>
+      <span>Verifique sua conexão e tente novamente.</span>
+      <button type="button" class="mf-btn mf-btn--contorno falha__acao" (click)="carregar()">Tentar novamente</button>
+    </div>
+  }
+
+  @case ('pronto') {
+    @if (temCarteira()) {
+      <div class="painel mf-stagger">
+        <!-- Números do mês -->
+        <section class="kpis" aria-label="Resumo do mês">
+          <article class="mf-stat mf-stat--destaque kpi">
+            <span class="mf-stat__icone">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M19 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
+                <path d="M21 12h-5a2 2 0 0 0 0 4h5v-4z" />
+              </svg>
+            </span>
+            <strong class="mf-stat__valor" [appContagemMoeda]="saldo()"></strong>
+            <span class="mf-stat__rotulo">Saldo da carteira</span>
+          </article>
+
+          <article class="mf-stat kpi" style="--tom: var(--primary-light)">
+            <span class="mf-stat__icone">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M17 7 7 17M17 17H7V7" />
+              </svg>
+            </span>
+            <strong class="mf-stat__valor" [appContagemMoeda]="entradas()"></strong>
+            <span class="mf-stat__rotulo">Entradas em {{ nomeMes }}</span>
+          </article>
+
+          <article class="mf-stat kpi" style="--tom: var(--accent-gold)">
+            <span class="mf-stat__icone">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M7 17 17 7M7 7h10v10" />
+              </svg>
+            </span>
+            <strong class="mf-stat__valor" [appContagemMoeda]="saidas()"></strong>
+            <span class="mf-stat__rotulo">Saídas em {{ nomeMes }}</span>
+          </article>
+
+          <article class="mf-stat kpi" [style.--tom]="situacao().tom">
+            <span class="mf-stat__icone">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M3 3v18h18" />
+                <path d="m7 14 4-4 3 3 5-6" />
+              </svg>
+            </span>
+            <span class="mf-stat__estado kpi__estado">
+              @switch (situacao().rotulo) {
+                @case ('Positivo') {
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5" /></svg>
+                }
+                @case ('Negativo') {
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 7v6M12 17h.01" /></svg>
+                }
+                @default {
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 12h12" /></svg>
+                }
+              }
+              {{ situacao().rotulo }}
+            </span>
+            <strong class="mf-stat__valor" [appContagemMoeda]="resultado()"></strong>
+            <span class="mf-stat__rotulo">Resultado do mês <small>(entradas − saídas)</small></span>
+          </article>
+        </section>
+
+        <div class="secoes">
+          <!-- Quanto das entradas já foi gasto -->
+          <section class="mf-card" aria-labelledby="titulo-uso">
+            <header class="mf-card__cabecalho">
+              <h2 id="titulo-uso" class="mf-card__titulo">Uso das entradas</h2>
+              <span class="mf-card__apoio">{{ nomeMes }}</span>
+            </header>
+
+            @if (percentualGasto() !== null) {
+              <p class="uso__numero">
+                <strong>{{ percentualGasto() }}%</strong>
+                <span>do que entrou já foi gasto</span>
+              </p>
+              <div
+                class="mf-meter uso__medidor"
+                [style.--tom]="tomUso()"
+                role="meter"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                [attr.aria-valuenow]="percentualGasto()"
+                [attr.aria-label]="'Percentual das entradas já gasto: ' + percentualGasto() + '%'"
+              >
+                <div class="mf-meter__valor" [style.width.%]="percentualGasto()! > 100 ? 100 : percentualGasto()"></div>
+              </div>
+              <p class="uso__dica">
+                @if (percentualGasto()! > 100) {
+                  Você gastou mais do que entrou neste mês. Vale revisar as maiores categorias.
+                } @else if (percentualGasto()! >= 80) {
+                  Atenção: falta pouco para os gastos alcançarem as entradas do mês.
+                } @else {
+                  Seus gastos estão dentro do que entrou. Continue assim!
+                }
+              </p>
+            } @else {
+              <div class="mf-vazio">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M17 7 7 17M17 17H7V7" />
+                </svg>
+                <strong>Nenhuma entrada em {{ nomeMes }}</strong>
+                <span>Registre o que você recebeu para acompanhar quanto já foi gasto.</span>
+              </div>
+            }
+          </section>
+
+          <!-- Saídas por categoria -->
+          <section class="mf-card" aria-labelledby="titulo-categorias">
+            <header class="mf-card__cabecalho">
+              <h2 id="titulo-categorias" class="mf-card__titulo">Para onde foi seu dinheiro</h2>
+              <span class="mf-card__apoio">saídas</span>
+            </header>
+
+            @if (gastosPorCategoria().length) {
+              <ul class="mf-rank">
+                @for (item of gastosPorCategoria(); track item.nome) {
+                  <li class="mf-rank__linha">
+                    <span class="mf-rank__nome">{{ item.nome }}</span>
+                    <span class="mf-rank__valor">{{ item.valor }}<small>{{ item.percentual }}%</small></span>
+                    <div class="mf-meter" style="--tom: var(--accent-gold)" aria-hidden="true">
+                      <div class="mf-meter__valor" [style.width.%]="item.percentual"></div>
+                    </div>
+                  </li>
+                }
+              </ul>
+            } @else {
+              <div class="mf-vazio">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="9" />
+                  <path d="M12 3v9l6.5 3.5" />
+                </svg>
+                <strong>Nenhuma saída em {{ nomeMes }}</strong>
+                <span>Quando você registrar gastos, mostramos aqui o peso de cada categoria.</span>
+              </div>
+            }
+          </section>
+
+          <!-- Últimas movimentações -->
+          <section class="mf-card" aria-labelledby="titulo-ultimas">
+            <header class="mf-card__cabecalho">
+              <h2 id="titulo-ultimas" class="mf-card__titulo">Últimas movimentações</h2>
+              <a class="mf-link" routerLink="/movimentacoes">Ver todas</a>
+            </header>
+
+            @if (ultimas() === null) {
+              <div class="mf-vazio">
+                <strong>Não foi possível carregar</strong>
+                <span>Tente atualizar a página em instantes.</span>
+              </div>
+            } @else if (ultimasFormatadas().length) {
+              <ul class="mf-lista">
+                @for (mov of ultimasFormatadas(); track mov.id) {
+                  <li class="mf-lista__item">
+                    <span class="mf-lista__icone" [style.--tom]="mov.entrada ? 'var(--primary-light)' : 'var(--accent-gold)'">
+                      @if (mov.entrada) {
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 7 7 17M17 17H7V7" /></svg>
+                      } @else {
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10" /></svg>
+                      }
+                    </span>
+                    <span class="mf-lista__textos">
+                      <strong class="mf-lista__titulo">{{ mov.categoria }}</strong>
+                      <span class="mf-lista__apoio">{{ mov.entrada ? 'Entrada' : 'Saída' }} · {{ mov.data }}</span>
+                    </span>
+                    <span class="mf-lista__valor">{{ mov.valor }}</span>
+                  </li>
+                }
+              </ul>
+            } @else {
+              <div class="mf-vazio">
+                <strong>Nenhuma movimentação ainda</strong>
+                <span>Suas entradas e saídas mais recentes aparecem aqui.</span>
+              </div>
+            }
+          </section>
+        </div>
+      </div>
+    } @else {
+      <!-- Sem carteira: convite para a configuração inicial -->
+      <section class="convite" aria-labelledby="titulo-convite">
+        <div class="convite__textos">
+          <span class="mf-eyebrow">Primeiro passo</span>
+          <h2 id="titulo-convite" class="convite__titulo">Vamos configurar sua carteira</h2>
+          <p class="convite__texto">
+            Leva menos de um minuto: você informa quanto tem hoje e seu painel começa a mostrar
+            entradas, saídas e o resultado do mês.
+          </p>
+          <ul class="convite__lista">
+            <li>Conheça as áreas do app</li>
+            <li>Informe seu saldo atual</li>
+            <li>Acompanhe seu mês aqui na visão geral</li>
+          </ul>
+          <button type="button" class="mf-btn mf-btn--primario convite__acao" (click)="mostrarOnboarding.set(true)">
+            Configurar carteira
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M5 12h14M13 6l6 6-6 6" />
+            </svg>
+          </button>
+        </div>
+        <img class="convite__mascote" src="mascote-login.png" alt="" width="984" height="690" />
+      </section>
     }
-    <h1 class="hero__titulo">{{ saudacao }}, {{ primeiroNome }}</h1>
-    <p class="hero__email">{{ u.email }}</p>
-  </header>
-
-  @if (u.firstLogin) {
-    <section class="convite">
-      <div class="convite__ilustracao">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path d="M3 12l3-3 4 4 8-8 3 3" />
-          <path d="M3 20h18" />
-        </svg>
-      </div>
-
-      <div class="convite__conteudo">
-        <h2>Vamos configurar sua carteira</h2>
-        <p>Leva menos de um minuto: você informa o saldo inicial e já entende como o app organiza suas finanças.</p>
-
-        <ul class="convite__lista">
-          <li>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l4 4 10-10" /></svg>
-            Conheça as 3 áreas do app
-          </li>
-          <li>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l4 4 10-10" /></svg>
-            Informe seu saldo atual
-          </li>
-          <li>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l4 4 10-10" /></svg>
-            Comece a acompanhar seu mês
-          </li>
-        </ul>
-      </div>
-
-      <button class="convite__botao" (click)="mostrarOnboarding.set(true)">
-        Começar
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
-      </button>
-    </section>
   }
 }
 
 @if (mostrarOnboarding()) {
-  <app-onboarding-component
-    (concluido)="finalizarOnboarding($event)"
-    (fechado)="mostrarOnboarding.set(false)"
-  />
+  <app-onboarding-component (concluido)="aoCriarCarteira()" (fechado)="mostrarOnboarding.set(false)" />
 }

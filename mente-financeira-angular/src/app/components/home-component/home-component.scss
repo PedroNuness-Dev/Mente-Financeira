@@ -1,205 +1,249 @@
 :host {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  max-width: 1280px;
 }
 
-.hero {
-  position: relative;
-  margin-bottom: 2.75rem;
+/* ---------- Cabeçalho ---------- */
+.cabecalho {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem 2rem;
 
-  &__badge {
-    display: inline-block;
-    background: var(--accent-green-bg);
-    color: var(--accent-green);
-    font-size: 0.72rem;
-    font-weight: 600;
-    padding: 0.3rem 0.65rem;
-    border-radius: 999px;
-    margin-bottom: 0.85rem;
+  &__textos {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
   }
 
-  &__titulo {    
-    font-size: 2.6rem;
-    font-weight: 500;
-    margin: 0 0 0.4rem;
-    color: var(--ink);
+  &__titulo {
+    font-size: clamp(1.75rem, 3vw, 2.25rem);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.03em;
   }
 
-  &__email {
+  &__data {
+    font-size: 0.92rem;
     color: var(--ink-soft);
-    margin: 0;
+  }
+
+  &__acao {
+    width: auto;
   }
 }
 
+/* ---------- Painel ---------- */
+.painel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.kpi {
+  min-height: 9rem;
+  justify-content: flex-end;
+
+  .mf-stat__icone {
+    margin-bottom: auto;
+  }
+
+  .mf-stat__valor {
+    font-size: clamp(1.35rem, 2vw, 1.65rem);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .mf-stat__rotulo small {
+    font-weight: 500;
+    color: var(--ink-faint);
+  }
+
+  &__estado {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+  }
+}
+
+.secoes {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.uso {
+  &__numero {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.9rem;
+
+    strong {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+
+    span {
+      font-size: 0.88rem;
+      color: var(--ink-soft);
+    }
+  }
+
+  &__medidor {
+    height: 0.65rem;
+  }
+
+  &__dica {
+    margin-top: 0.9rem;
+    font-size: 0.84rem;
+    color: var(--ink-soft);
+  }
+}
+
+/* ---------- Estados ---------- */
+.esqueleto {
+  &--kpi {
+    height: 9rem;
+  }
+
+  &--card {
+    height: 16rem;
+  }
+}
+
+.falha {
+  padding: 3rem 1.5rem;
+
+  &__acao {
+    width: auto;
+    margin-top: 0.75rem;
+  }
+}
+
+/* ---------- Convite (sem carteira) ---------- */
 .convite {
   position: relative;
-  overflow: hidden;
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr);
   align-items: center;
   gap: 2rem;
-  background: var(--surface);
+  padding: clamp(1.5rem, 4vw, 3rem);
   border: 1px solid var(--border);
-  border-radius: 0.9rem;
-  padding: 2rem 2.25rem;
-  margin-bottom: 2.5rem;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  overflow: hidden;
+  animation: mf-rise var(--dur-slower) var(--ease-out);
 
-  &::before {
-    content: '';
-    position: absolute;
-    top: -3rem;
-    right: -3rem;
-    width: 10rem;
-    height: 10rem;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(184, 134, 59, 0.14), transparent 70%);
+  &__textos {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
   }
 
-  &__ilustracao {
-    display: grid;
-    place-items: center;
-    width: 3.5rem;
-    height: 3.5rem;
-    border-radius: 50%;
-    background: var(--accent-green-bg);
-    color: var(--accent-green);
-    flex-shrink: 0;
-
-    svg {
-      width: 1.6rem;
-      height: 1.6rem;
-    }
+  &__titulo {
+    font-size: clamp(1.5rem, 2.6vw, 2rem);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.025em;
   }
 
-  &__conteudo {
-    min-width: 0;
-
-    h2 {      
-      font-size: 1.3rem;
-      font-weight: 500;
-      margin: 0 0 0.4rem;
-      color: var(--ink);
-    }
-
-    p {
-      color: var(--ink-soft);
-      margin: 0 0 1rem;
-      font-size: 0.92rem;
-      max-width: 30rem;
-    }
+  &__texto {
+    max-width: 32rem;
+    color: var(--ink-soft);
   }
 
   &__lista {
-    list-style: none;
-    margin: 0;
-    padding: 0;
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem 1.5rem;
+    flex-direction: column;
+    gap: 0.5rem;
+    list-style: none;
 
     li {
       display: flex;
       align-items: center;
-      gap: 0.4rem;
-      font-size: 0.82rem;
-      color: var(--ink-soft);
+      gap: 0.6rem;
+      font-size: 0.9rem;
+      font-weight: 600;
 
-      svg {
-        width: 0.9rem;
-        height: 0.9rem;
-        color: var(--accent-green);
-        flex-shrink: 0;
+      &::before {
+        content: '';
+        width: 0.5rem;
+        height: 0.5rem;
+        border-radius: 50%;
+        background: var(--primary-light);
       }
     }
   }
 
-  &__botao {
-    position: relative;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    flex-shrink: 0;
-    background: var(--primary-light);
-    color: #2a1c08;
-    border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 0.5rem;    
-    font-weight: 600;
-    font-size: 0.92rem;
-    cursor: pointer;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  &__acao {
+    width: auto;
+    align-self: flex-start;
+    margin-top: 0.5rem;
+  }
 
-    svg {
-      width: 1rem;
-      height: 1rem;
-    }
-
-    &:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 8px 20px rgba(184, 134, 59, 0.3);
-    }
+  &__mascote {
+    width: 100%;
+    height: auto;
+    animation: mf-float 7s ease-in-out infinite;
   }
 }
 
-.cards {
-  display: flex;
-  gap: 1.25rem;
-  flex-wrap: wrap;
-}
-
-.card {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 0.6rem;
-  padding: 1.1rem 1.4rem;
-  min-width: 14rem;
-  flex: 1;
-
-  &__icone {
-    display: grid;
-    place-items: center;
-    width: 2.5rem;
-    height: 2.5rem;
-    border-radius: 0.5rem;
-    background: var(--bg);
-    color: var(--ink-soft);
-    flex-shrink: 0;
-
-    svg {
-      width: 1.2rem;
-      height: 1.2rem;
-    }
-
-    &--sucesso {
-      background: var(--accent-green-bg);
-      color: var(--accent-green);
-    }
+/* ---------- Responsividade ---------- */
+@media (max-width: 1180px) {
+  .kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  &__rotulo {
-    display: block;
-    font-size: 0.78rem;
-    color: var(--ink-soft);
-    margin-bottom: 0.2rem;
-  }
+  .secoes {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
 
-  &__valor {
-    display: block;    
-    font-size: 1.2rem;
-    color: var(--ink);
+    > :last-child {
+      grid-column: 1 / -1;
+    }
   }
 }
 
 @media (max-width: 720px) {
-  .convite {
-    grid-template-columns: 1fr;
-    text-align: left;
+  .cabecalho__acao {
+    width: 100%;
   }
 
-  .convite__botao {
-    width: 100%;
-    justify-content: center;
+  .kpis,
+  .secoes {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .kpi {
+    min-height: 0;
+
+    .mf-stat__icone {
+      margin-bottom: 0.5rem;
+    }
+  }
+
+  .convite {
+    grid-template-columns: 1fr;
+
+    &__mascote {
+      max-width: 18rem;
+      justify-self: center;
+      order: -1;
+    }
+
+    &__acao {
+      width: 100%;
+    }
   }
 }
