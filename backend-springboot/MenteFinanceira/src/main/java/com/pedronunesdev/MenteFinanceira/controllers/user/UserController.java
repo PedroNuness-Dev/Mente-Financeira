@@ -18,7 +18,7 @@ public class UserController {
 
     private final UserService userService;
 
-    @PostMapping("/register")
+    @PostMapping
     public ResponseEntity<UserDTOResponse> registerUser(@RequestBody @Valid UserDTORequest request){
 
         UserDTOResponse response = userService.registerUser(request);
@@ -26,7 +26,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @GetMapping("/profile")
+    @GetMapping("/me")
     public ResponseEntity<UserDTOResponse> findUserProfile(){
 
         UserDTOResponse userProfile = userService.findUserProfile();
