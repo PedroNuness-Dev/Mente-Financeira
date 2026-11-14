@@ -149,9 +149,9 @@ export class NovaMovimentacaoComponent {
     this.campoValor().nativeElement.focus();
   }
 
+  /** Os erros dos campos só aparecem depois da primeira tentativa de registrar. */
   campoInvalido(nome: 'categoria' | 'descricao'): boolean {
-    const controle = this.form.controls[nome];
-    return controle.invalid && (controle.touched || this.tentouSalvar());
+    return this.tentouSalvar() && this.form.controls[nome].invalid;
   }
 
   salvar(evento?: Event): void {
@@ -160,7 +160,6 @@ export class NovaMovimentacaoComponent {
 
     this.tentouSalvar.set(true);
     this.erro.set(null);
-    this.form.markAllAsTouched();
     if (!this.valorValido() || this.form.invalid) return;
 
     const valor = this.centavos() / 100;

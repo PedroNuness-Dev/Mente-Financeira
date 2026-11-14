@@ -124,6 +124,15 @@ describe('NovaMovimentacaoComponent', () => {
     expect(component.categoriaSelecionada()?.rotulo).toBe('Saúde');
   });
 
+  it('não mostra erro na descrição só por sair do campo', async () => {
+    await criar('ENTRADA');
+    component.form.controls.descricao.markAsTouched();
+    expect(component.campoInvalido('descricao')).toBe(false);
+
+    component.salvar();
+    expect(component.campoInvalido('descricao')).toBe(true);
+  });
+
   it('mostra a mensagem de erro quando o backend recusa', async () => {
     await criar('ENTRADA');
     preencher(1000, 'SALARIO', 'salário');
