@@ -152,4 +152,14 @@ public class WalletService {
 
         return new BalanceResponseDTO(foundBalance);
     }
+
+    public WalletCheckRequest walletCheckExist(){
+
+        Long userId = authenticationService.extractAuthenticatedUserId();
+
+        if (walletRepository.findWalletByUserId(userId).isPresent()){
+            return new WalletCheckRequest(true);
+        }
+        else return new WalletCheckRequest(false);
+    }
 }

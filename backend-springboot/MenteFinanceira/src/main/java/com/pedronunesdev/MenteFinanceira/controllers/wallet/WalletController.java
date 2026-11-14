@@ -48,4 +48,10 @@ public class WalletController {
 
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/check")
+    public ResponseEntity<WalletCheckRequest> checkWalletExist(){
+
+        return ResponseEntity.ok(walletService.walletCheckExist());
+    }
 }

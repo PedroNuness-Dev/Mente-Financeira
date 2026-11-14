@@ -55,8 +55,7 @@ public class UserService {
                 userToSave.getName(),
                 userToSave.getEmail(),
                 userToSave.getCreationDate(),
-                userToSave.getUpdateDate(),
-                userToSave.getFirstLogin()
+                userToSave.getUpdateDate()
         );
     }
 
@@ -71,8 +70,7 @@ public class UserService {
             userAuthenticated.getName(),
             userAuthenticated.getEmail(),
             userAuthenticated.getCreationDate(),
-            userAuthenticated.getUpdateDate(),
-            userAuthenticated.getFirstLogin()
+            userAuthenticated.getUpdateDate()
         );
     }
 }

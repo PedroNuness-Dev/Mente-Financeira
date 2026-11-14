@@ -46,10 +46,6 @@ public class User implements Serializable {
     @Builder.Default
     private LocalDateTime creationDate = LocalDateTime.now();
 
-    @Builder.Default
-    @Column(name = "first_login")
-    private Boolean firstLogin = true;
-
     @UpdateTimestamp
     @Column(name = "update_date", nullable = false)
     @Builder.Default

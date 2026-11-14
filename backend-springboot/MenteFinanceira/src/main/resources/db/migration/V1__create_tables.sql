@@ -12,7 +12,6 @@ CREATE TABLE tb_user (
                          password VARCHAR(255) NOT NULL,
                          creation_date TIMESTAMP NOT NULL,
                          update_date TIMESTAMP NOT NULL,
-                         first_login BOOLEAN DEFAULT TRUE,
                          CONSTRAINT uk_user_email UNIQUE (email)
 );
 
