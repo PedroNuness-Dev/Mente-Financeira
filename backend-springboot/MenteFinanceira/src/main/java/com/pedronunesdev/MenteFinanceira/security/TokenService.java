@@ -2,10 +2,10 @@ package com.pedronunesdev.MenteFinanceira.security;
 
 import com.pedronunesdev.MenteFinanceira.dto.auth.JWTCreateResponse;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -14,9 +14,11 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.Optional;
 
 @Service
-public class JWTService {
+@Slf4j
+public class TokenService {
 
     @Value("${api.security.token.secret}")
     private String keySecret;
@@ -46,30 +48,22 @@ public class JWTService {
         return new JWTCreateResponse(expiration, token);
     }
 
-    public String validateJWTAndGetSubject(String token){
+    public Optional<String> validateTokenAndGetSubject(String token){
 
-        Claims claims = Jwts.parser()
-                .verifyWith(getSigningKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
-
-        return claims.getSubject();
-    }
-
-    public boolean isJWTValid(String token){
-        try{
-            Jwts.parser()
+        try {
+            Claims claims = Jwts.parser()
+                    .requireIssuer(issuer)
                     .verifyWith(getSigningKey())
                     .build()
-                    .parseSignedClaims(token);
-            return true;
-        }
-        catch (ExpiredJwtException e){
-            return false;
-        }
-        catch (JwtException | IllegalArgumentException e){
-            return false;
+                    .parseSignedClaims(token)
+                    .getPayload();
+
+            return Optional.ofNullable(claims.getSubject());
+        }catch (JwtException | IllegalArgumentException e){
+
+            log.warn("Token inválido: {}", e.getMessage());
+
+            return Optional.empty();
         }
     }
 }

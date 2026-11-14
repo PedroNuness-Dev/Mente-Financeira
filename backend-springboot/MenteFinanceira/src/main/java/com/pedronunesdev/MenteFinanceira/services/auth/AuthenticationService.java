@@ -6,7 +6,7 @@ import com.pedronunesdev.MenteFinanceira.dto.auth.LoginRequestDTO;
 import com.pedronunesdev.MenteFinanceira.dto.auth.LoginResponseDTO;
 import com.pedronunesdev.MenteFinanceira.exception.ResourceNotFoundException;
 import com.pedronunesdev.MenteFinanceira.repositories.user.UserRepository;
-import com.pedronunesdev.MenteFinanceira.security.JWTService;
+import com.pedronunesdev.MenteFinanceira.security.TokenService;
 import com.pedronunesdev.MenteFinanceira.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +23,7 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class AuthenticationService {
 
-    private final JWTService jwtService;
+    private final TokenService tokenService;
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
 
@@ -38,7 +38,7 @@ public class AuthenticationService {
 
         UserDetailsImpl userDetails = (UserDetailsImpl) Objects.requireNonNull(authentication.getPrincipal());
 
-        JWTCreateResponse jwtToken = jwtService.generateJWT(userDetails);
+        JWTCreateResponse jwtToken = tokenService.generateJWT(userDetails);
 
         log.info("Authentication completed successfully");
 
