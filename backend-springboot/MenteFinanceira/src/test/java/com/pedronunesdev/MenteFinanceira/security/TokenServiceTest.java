@@ -1,6 +1,6 @@
 package com.pedronunesdev.MenteFinanceira.security;
 
-import com.pedronunesdev.MenteFinanceira.dto.auth.JWTCreateResponse;
+import com.pedronunesdev.MenteFinanceira.dto.auth.TokenCreateResponse;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.WeakKeyException;
@@ -44,7 +44,7 @@ class TokenServiceTest {
     @Test
     @DisplayName("Deve gerar um token cujo subject é o e-mail do usuário")
     void shouldGenerateTokenWithEmailAsSubject() {
-        JWTCreateResponse response = tokenService.generateToken(buildUserDetails());
+        TokenCreateResponse response = tokenService.generateToken(buildUserDetails());
 
         assertThat(tokenService.validateTokenAndGetSubject(response.token())).contains(EMAIL);
     }
@@ -54,7 +54,7 @@ class TokenServiceTest {
     void shouldExpireTokenAfterTwoHours() {
         Instant before = Instant.now();
 
-        JWTCreateResponse response = tokenService.generateToken(buildUserDetails());
+        TokenCreateResponse response = tokenService.generateToken(buildUserDetails());
 
         assertThat(response.expiration())
                 .isAfterOrEqualTo(before.plus(2, ChronoUnit.HOURS))

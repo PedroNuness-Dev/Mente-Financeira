@@ -1,6 +1,6 @@
 package com.pedronunesdev.MenteFinanceira.security;
 
-import com.pedronunesdev.MenteFinanceira.dto.auth.JWTCreateResponse;
+import com.pedronunesdev.MenteFinanceira.dto.auth.TokenCreateResponse;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -27,7 +27,7 @@ public class TokenService {
         issuer = tokenProperties.issuer();
     }
 
-    public JWTCreateResponse generateToken(UserDetailsImpl userDetails){
+    public TokenCreateResponse generateToken(UserDetailsImpl userDetails){
 
         Instant now = Instant.now();
         Instant expiration = now.plus(2, ChronoUnit.HOURS);
@@ -43,7 +43,7 @@ public class TokenService {
                 .expiration(Date.from(expiration))
                 .compact();
 
-        return new JWTCreateResponse(expiration, token);
+        return new TokenCreateResponse(expiration, token);
     }
 
     public Optional<String> validateTokenAndGetSubject(String token){

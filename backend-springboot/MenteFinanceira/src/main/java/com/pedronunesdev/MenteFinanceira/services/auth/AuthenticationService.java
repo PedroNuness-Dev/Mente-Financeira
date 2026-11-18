@@ -1,15 +1,16 @@
 package com.pedronunesdev.MenteFinanceira.services.auth;
 
 import com.pedronunesdev.MenteFinanceira.domain.user.User;
-import com.pedronunesdev.MenteFinanceira.dto.auth.JWTCreateResponse;
 import com.pedronunesdev.MenteFinanceira.dto.auth.LoginRequestDTO;
 import com.pedronunesdev.MenteFinanceira.dto.auth.LoginResponseDTO;
+import com.pedronunesdev.MenteFinanceira.dto.auth.TokenCreateResponse;
 import com.pedronunesdev.MenteFinanceira.exception.ResourceNotFoundException;
 import com.pedronunesdev.MenteFinanceira.repositories.user.UserRepository;
 import com.pedronunesdev.MenteFinanceira.security.TokenService;
 import com.pedronunesdev.MenteFinanceira.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -38,48 +39,49 @@ public class AuthenticationService {
 
         UserDetailsImpl userDetails = (UserDetailsImpl) Objects.requireNonNull(authentication.getPrincipal());
 
-        JWTCreateResponse jwtToken = tokenService.generateToken(userDetails);
+        TokenCreateResponse tokenCreated = tokenService.generateToken(userDetails);
 
         log.info("Authentication completed successfully");
 
         return new LoginResponseDTO(
-                jwtToken.token(),
+                tokenCreated.token(),
                 "Bearer",
-                jwtToken.expiration(),
+                tokenCreated.expiration(),
                 userDetails.getId(),
                 userDetails.getName(),
                 userDetails.getEmail()
         );
     }
 
-    public User me(){
+    public User me() {
 
-        UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal();
+
+        UserDetailsImpl userDetails = getUserDetailsImpl();
 
         return userRepository.findByEmail(userDetails.getEmail())
-                .orElseThrow(() -> new ResourceNotFoundException("Authenticated user not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Authenticated user not found"
+                ));
     }
 
     public Long extractAuthenticatedUserId(){
 
-        UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal();
+        UserDetailsImpl userDetails = getUserDetailsImpl();
 
         return userDetails.getId();
     }
 
-    public int extractAuthenticatedUserCreationYear(){
-
-        UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder
+    private UserDetailsImpl getUserDetailsImpl(){
+        Authentication authentication = SecurityContextHolder
                 .getContext()
-                .getAuthentication()
-                .getPrincipal();
+                .getAuthentication();
 
-        return userDetails.getUserCreationYear();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new AuthenticationCredentialsNotFoundException(
+                    "Usuário não autenticado"
+            );
+        }
+
+        return (UserDetailsImpl) authentication.getPrincipal();
     }
 }
