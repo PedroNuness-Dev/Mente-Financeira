@@ -27,7 +27,7 @@ public class WalletService {
     private final AuthenticationService authenticationService;
 
     @Transactional
-    public WalletResponseDTO registerWalletForUser(WalletRequestDTO request){
+    public WalletResponse registerWalletForUser(WalletRegisterRequest request){
 
         User user = authenticationService.me();
 
@@ -61,7 +61,7 @@ public class WalletService {
         log.info("Wallet registered successfully. walletId={}, userId={}, movementId={}",
                 walletToSave.getWalletId(), user.getId(), movementResponse.movementId());
 
-        return new WalletResponseDTO(
+        return new WalletResponse(
                 walletToSave.getWalletId(),
                 walletToSave.getBalance(),
                 movementResponse
@@ -69,7 +69,7 @@ public class WalletService {
     }
 
     @Transactional
-    public WalletResponseDTO depositToWallet(WalletDepositRequest request){
+    public WalletResponse depositToWallet(WalletDepositRequest request){
 
         Long userId = authenticationService.extractAuthenticatedUserId();
 
@@ -97,7 +97,7 @@ public class WalletService {
         log.info("Deposit completed successfully. walletId={}, userId={}, movementId={}",
                 wallet.getWalletId(), userId, movementResponse.movementId());
 
-        return new WalletResponseDTO(
+        return new WalletResponse(
                 wallet.getWalletId(),
                 wallet.getBalance(),
                 movementResponse
@@ -105,7 +105,7 @@ public class WalletService {
     }
 
     @Transactional
-    public WalletResponseDTO withdrawFromWallet(WalletWithdrawalRequest request){
+    public WalletResponse withdrawFromWallet(WalletWithdrawalRequest request){
 
         Long userId = authenticationService.extractAuthenticatedUserId();
 
@@ -133,7 +133,7 @@ public class WalletService {
         log.info("Withdrawal completed successfully. walletId={}, userId={}, movementId={}",
                 wallet.getWalletId(), userId, movementResponse.movementId());
 
-        return new WalletResponseDTO(
+        return new WalletResponse(
                 wallet.getWalletId(),
                 wallet.getBalance(),
                 movementResponse

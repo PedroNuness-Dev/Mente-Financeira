@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
 
-public record WalletRequestDTO(
+public record WalletRegisterRequest(
         @NotNull
         @Min(1)
         BigDecimal initialBalance

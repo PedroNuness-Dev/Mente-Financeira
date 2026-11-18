@@ -2,8 +2,8 @@ package com.pedronunesdev.MenteFinanceira.services.user;
 
 import com.pedronunesdev.MenteFinanceira.domain.role.Role;
 import com.pedronunesdev.MenteFinanceira.domain.user.User;
-import com.pedronunesdev.MenteFinanceira.dto.user.UserDTORequest;
-import com.pedronunesdev.MenteFinanceira.dto.user.UserDTOResponse;
+import com.pedronunesdev.MenteFinanceira.dto.user.UserRequest;
+import com.pedronunesdev.MenteFinanceira.dto.user.UserResponse;
 import com.pedronunesdev.MenteFinanceira.enums.role.RoleType;
 import com.pedronunesdev.MenteFinanceira.exception.ResourceNotFoundException;
 import com.pedronunesdev.MenteFinanceira.repositories.role.RoleRepository;
@@ -28,7 +28,7 @@ public class UserService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Transactional
-    public UserDTOResponse registerUser(UserDTORequest request){
+    public UserResponse registerUser(UserRequest request){
 
         if (userRepository.findByEmail(request.email()).isPresent()) throw new IllegalArgumentException("Error registering user");
 
@@ -50,7 +50,7 @@ public class UserService {
 
         log.info("User saved successfully, with ID: [{}]", userToSave.getId());
 
-        return new UserDTOResponse(
+        return new UserResponse(
                 userToSave.getId(),
                 userToSave.getName(),
                 userToSave.getEmail(),
@@ -59,13 +59,13 @@ public class UserService {
         );
     }
 
-    public UserDTOResponse findUserProfile(){
+    public UserResponse findUserProfile(){
 
         log.info("Retrieving authenticated user profile");
 
         User userAuthenticated = authenticationService.me();
 
-        return new UserDTOResponse(
+        return new UserResponse(
             userAuthenticated.getId(),
             userAuthenticated.getName(),
             userAuthenticated.getEmail(),

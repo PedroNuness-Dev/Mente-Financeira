@@ -2,7 +2,7 @@ package com.pedronunesdev.MenteFinanceira.dto.auth;
 
 import java.time.Instant;
 
-public record LoginResponseDTO(
+public record LoginResponse(
         String token,
         String type, // "Bearer"
         Instant expiresAt,

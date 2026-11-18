@@ -1,8 +1,8 @@
 package com.pedronunesdev.MenteFinanceira.services.auth;
 
 import com.pedronunesdev.MenteFinanceira.domain.user.User;
-import com.pedronunesdev.MenteFinanceira.dto.auth.LoginRequestDTO;
-import com.pedronunesdev.MenteFinanceira.dto.auth.LoginResponseDTO;
+import com.pedronunesdev.MenteFinanceira.dto.auth.LoginRequest;
+import com.pedronunesdev.MenteFinanceira.dto.auth.LoginResponse;
 import com.pedronunesdev.MenteFinanceira.dto.auth.TokenCreateResponse;
 import com.pedronunesdev.MenteFinanceira.exception.ResourceNotFoundException;
 import com.pedronunesdev.MenteFinanceira.repositories.user.UserRepository;
@@ -28,7 +28,7 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
 
-    public LoginResponseDTO authenticateUser(LoginRequestDTO requestDTO){
+    public LoginResponse authenticateUser(LoginRequest requestDTO){
 
         log.info("Starting authentication process for user with email [{}]", requestDTO.email());
 
@@ -43,7 +43,7 @@ public class AuthenticationService {
 
         log.info("Authentication completed successfully");
 
-        return new LoginResponseDTO(
+        return new LoginResponse(
                 tokenCreated.token(),
                 "Bearer",
                 tokenCreated.expiration(),

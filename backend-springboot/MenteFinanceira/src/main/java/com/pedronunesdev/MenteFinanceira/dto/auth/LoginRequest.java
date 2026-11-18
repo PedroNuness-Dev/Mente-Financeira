@@ -3,7 +3,7 @@ package com.pedronunesdev.MenteFinanceira.dto.auth;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
-public record LoginRequestDTO(
+public record LoginRequest(
         @NotBlank
         @Email
         String email,

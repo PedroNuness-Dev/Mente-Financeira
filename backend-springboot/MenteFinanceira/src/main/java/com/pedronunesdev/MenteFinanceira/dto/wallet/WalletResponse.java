@@ -4,7 +4,7 @@ import com.pedronunesdev.MenteFinanceira.dto.movement.MovementResponse;
 
 import java.math.BigDecimal;
 
-public record WalletResponseDTO(
+public record WalletResponse(
         Long id,
         BigDecimal balance,
         MovementResponse movement

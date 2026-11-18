@@ -18,25 +18,25 @@ public class WalletController {
     private final WalletService walletService;
 
     @PostMapping
-    public ResponseEntity<WalletResponseDTO> registerWallet(@RequestBody @Valid WalletRequestDTO request){
+    public ResponseEntity<WalletResponse> registerWallet(@RequestBody @Valid WalletRegisterRequest request){
 
-        WalletResponseDTO response = walletService.registerWalletForUser(request);
+        WalletResponse response = walletService.registerWalletForUser(request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PutMapping("/deposit")
-    public ResponseEntity<WalletResponseDTO> depositToWallet(@RequestBody @Valid WalletDepositRequest request){
+    public ResponseEntity<WalletResponse> depositToWallet(@RequestBody @Valid WalletDepositRequest request){
 
-        WalletResponseDTO response = walletService.depositToWallet(request);
+        WalletResponse response = walletService.depositToWallet(request);
 
         return ResponseEntity.ok(response);
     }
 
     @PutMapping("/withdraw")
-    public ResponseEntity<WalletResponseDTO> withdrawFromWallet(@RequestBody @Valid WalletWithdrawalRequest request){
+    public ResponseEntity<WalletResponse> withdrawFromWallet(@RequestBody @Valid WalletWithdrawalRequest request){
 
-        WalletResponseDTO response = walletService.withdrawFromWallet(request);
+        WalletResponse response = walletService.withdrawFromWallet(request);
 
         return ResponseEntity.ok(response);
     }

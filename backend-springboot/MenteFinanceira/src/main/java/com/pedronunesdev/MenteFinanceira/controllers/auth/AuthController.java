@@ -1,7 +1,7 @@
 package com.pedronunesdev.MenteFinanceira.controllers.auth;
 
-import com.pedronunesdev.MenteFinanceira.dto.auth.LoginRequestDTO;
-import com.pedronunesdev.MenteFinanceira.dto.auth.LoginResponseDTO;
+import com.pedronunesdev.MenteFinanceira.dto.auth.LoginRequest;
+import com.pedronunesdev.MenteFinanceira.dto.auth.LoginResponse;
 import com.pedronunesdev.MenteFinanceira.services.auth.AuthenticationService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -21,10 +21,10 @@ public class AuthController {
     private final AuthenticationService authenticationService;
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDTO> login(@RequestBody @Valid LoginRequestDTO requestDTO){
+    public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest requestDTO){
 
-        LoginResponseDTO loginResponseDTO = authenticationService.authenticateUser(requestDTO);
+        LoginResponse loginResponse = authenticationService.authenticateUser(requestDTO);
 
-        return ResponseEntity.ok(loginResponseDTO);
+        return ResponseEntity.ok(loginResponse);
     }
 }

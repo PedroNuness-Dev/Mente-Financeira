@@ -1,7 +1,7 @@
 package com.pedronunesdev.MenteFinanceira.controllers.user;
 
-import com.pedronunesdev.MenteFinanceira.dto.user.UserDTORequest;
-import com.pedronunesdev.MenteFinanceira.dto.user.UserDTOResponse;
+import com.pedronunesdev.MenteFinanceira.dto.user.UserRequest;
+import com.pedronunesdev.MenteFinanceira.dto.user.UserResponse;
 import com.pedronunesdev.MenteFinanceira.services.user.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -19,17 +19,17 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public ResponseEntity<UserDTOResponse> registerUser(@RequestBody @Valid UserDTORequest request){
+    public ResponseEntity<UserResponse> registerUser(@RequestBody @Valid UserRequest request){
 
-        UserDTOResponse response = userService.registerUser(request);
+        UserResponse response = userService.registerUser(request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/me")
-    public ResponseEntity<UserDTOResponse> findUserProfile(){
+    public ResponseEntity<UserResponse> findUserProfile(){
 
-        UserDTOResponse userProfile = userService.findUserProfile();
+        UserResponse userProfile = userService.findUserProfile();
 
         return ResponseEntity.ok(userProfile);
     }
