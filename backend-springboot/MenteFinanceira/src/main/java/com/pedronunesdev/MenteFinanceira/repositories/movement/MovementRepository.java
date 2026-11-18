@@ -1,7 +1,7 @@
 package com.pedronunesdev.MenteFinanceira.repositories.movement;
 
 import com.pedronunesdev.MenteFinanceira.domain.movement.Movement;
-import com.pedronunesdev.MenteFinanceira.dto.movement.CategoryTotalDTO;
+import com.pedronunesdev.MenteFinanceira.dto.movement.TotalByCategory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -37,5 +37,5 @@ public interface MovementRepository extends JpaRepository<Movement,Long> {
     GROUP BY m.movementCategory, m.movementType
     ORDER BY SUM(m.movedAmount) DESC
 """)
-    List<CategoryTotalDTO> totalByCategory(@Param("id") Long userId, @Param("firstDay") LocalDateTime firstDay, @Param("lastDay") LocalDateTime lastDay);
+    List<TotalByCategory> totalByCategory(@Param("id") Long userId, @Param("firstDay") LocalDateTime firstDay, @Param("lastDay") LocalDateTime lastDay);
 }

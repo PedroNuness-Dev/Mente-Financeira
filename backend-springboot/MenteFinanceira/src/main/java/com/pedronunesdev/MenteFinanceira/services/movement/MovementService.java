@@ -3,7 +3,7 @@ package com.pedronunesdev.MenteFinanceira.services.movement;
 import com.pedronunesdev.MenteFinanceira.domain.movement.Movement;
 import com.pedronunesdev.MenteFinanceira.domain.wallet.Wallet;
 import com.pedronunesdev.MenteFinanceira.dto.movement.AnalysisMovementCategory;
-import com.pedronunesdev.MenteFinanceira.dto.movement.CategoryTotalDTO;
+import com.pedronunesdev.MenteFinanceira.dto.movement.TotalByCategory;
 import com.pedronunesdev.MenteFinanceira.dto.movement.MovementResponse;
 import com.pedronunesdev.MenteFinanceira.dto.movement.PercentageMovementCategory;
 import com.pedronunesdev.MenteFinanceira.enums.movement.MovementCategory;
@@ -106,7 +106,7 @@ public class MovementService {
 
         Long userId = authenticationService.extractAuthenticatedUserId();
 
-        List<CategoryTotalDTO> categoryTotals =
+        List<TotalByCategory> categoryTotals =
                 movementRepository.totalByCategory(userId, initialDateFormatWithTime, finalDateFormatWithTime);
 
         log.info("Categories found in query: {}", categoryTotals.size());
@@ -172,18 +172,18 @@ public class MovementService {
         return finalDateFormat.plusDays(1).atStartOfDay();
     }
 
-    private BigDecimal sumTotals(List<CategoryTotalDTO> categoryTotals, MovementType movementType){
+    private BigDecimal sumTotals(List<TotalByCategory> categoryTotals, MovementType movementType){
         if (movementType != null){
             return categoryTotals
                     .stream()
                     .filter(movement -> movement.movementType() == movementType)
-                    .map(CategoryTotalDTO::totalAmount)
+                    .map(TotalByCategory::totalAmount)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
         }
         else {
             return categoryTotals
                     .stream()
-                    .map(CategoryTotalDTO::totalAmount)
+                    .map(TotalByCategory::totalAmount)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
         }
     }

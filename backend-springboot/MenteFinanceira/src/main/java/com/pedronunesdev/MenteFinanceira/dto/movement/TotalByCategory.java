@@ -5,7 +5,7 @@ import com.pedronunesdev.MenteFinanceira.enums.movement.MovementType;
 
 import java.math.BigDecimal;
 
-public record CategoryTotalDTO(
+public record TotalByCategory(
         MovementCategory category,
         MovementType movementType,
         BigDecimal totalAmount
