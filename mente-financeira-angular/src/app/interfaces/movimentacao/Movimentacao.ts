@@ -1,10 +1,10 @@
 export type TipoMovimentacao = 'ENTRADA' | 'RETIRADA';
 
-/** MovementDTOResponse do backend. */
+/** MovementResponse do backend. */
 export interface Movimentacao {
-  id: number;
+  movementId: number;
   movedAmount: number;
-  /** Formato dd/MM/yyyy HH:mm:ss */
+  /** ISO local, por exemplo "2026-11-14T13:20:05.123456" (ler com `lerDataHora`). */
   executionDate: string;
   movementType: TipoMovimentacao;
   movementCategory: string;

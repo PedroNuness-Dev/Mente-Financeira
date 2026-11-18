@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
+import { HttpRequest } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
 
@@ -14,18 +15,22 @@ describe('HomeComponent', () => {
   let fixture: ComponentFixture<HomeComponent>;
   let httpMock: HttpTestingController;
   const hoje = new Date();
-  const urlAnalise = `${API}/${hoje.getMonth() + 1}/${hoje.getFullYear()}`;
   const anterior = new Date(hoje.getFullYear(), hoje.getMonth() - 1, 1);
-  const urlAnterior = `${API}/${anterior.getMonth() + 1}/${anterior.getFullYear()}`;
+  const iso = (d: Date) =>
+    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  /** GET /analysis do mês inteiro de `ref`: do dia 1 ao último dia. */
+  const analiseDoMes = (ref: Date) => (req: HttpRequest<unknown>) =>
+    req.url === `${API}/analysis` &&
+    req.params.get('initialDate') === iso(new Date(ref.getFullYear(), ref.getMonth(), 1)) &&
+    req.params.get('finalDate') === iso(new Date(ref.getFullYear(), ref.getMonth() + 1, 0));
+  const urlAnalise = analiseDoMes(hoje);
+  const urlAnterior = analiseDoMes(anterior);
 
   const analise = (parcial: Partial<AnaliseMensal>): AnaliseMensal => ({
     totalAmount: 0,
     income: 0,
     withdrawal: 0,
     currentBalance: 0,
-    analyzedMonth: 'novembro',
-    analyzedYear: hoje.getFullYear(),
-    analysisDate: '',
     categoryBreakdown: [],
     ...parcial,
   });
@@ -63,6 +68,29 @@ describe('HomeComponent', () => {
     expect(component.resultado()).toBe(1800);
     expect(component.situacao().rotulo).toBe('Positivo');
     expect(component.percentualGasto()).toBe(40);
+  });
+
+  it('formata as últimas movimentações que chegam com data ISO', async () => {
+    responderCheck(true);
+    httpMock.expectOne(urlAnalise).flush(analise({ currentBalance: 100 }));
+    httpMock.expectOne((req) => req.url === API).flush({
+      content: [
+        {
+          movementId: 7,
+          movedAmount: 50,
+          executionDate: '2026-11-14T13:20:05.123456',
+          movementType: 'RETIRADA',
+          movementCategory: 'MERCADO',
+        },
+      ],
+    });
+    await fixture.whenStable();
+
+    const [mov] = component.ultimasFormatadas();
+    expect(mov.id).toBe(7);
+    expect(mov.data).toBe('14/11 às 13:20');
+    expect(mov.categoria).toBe('Mercado');
+    expect(mov.entrada).toBe(false);
   });
 
   it('ordena as saídas por categoria, da maior para a menor, ignorando entradas', async () => {

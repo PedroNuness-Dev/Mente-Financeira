@@ -16,7 +16,7 @@ import { UsuarioService } from '../../services/usuario/usuario-service';
 import { AuthService } from '../../services/auth/auth-service';
 import { ThemeService } from '../../services/theme/theme-service';
 import { SplashService } from '../../services/splash/splash-service';
-import { formatarDataBr, lerDataBr } from '../../utils/formatar-data';
+import { formatarDataBr, lerDataHora } from '../../utils/formatar-data';
 
 /** Itens da navbar: o ícone é uma lista de "d" de <path> (traço 24x24). */
 export const ITENS_NAV = [
@@ -174,8 +174,7 @@ export class LayoutComponent implements OnInit {
 
   /** "3 dias", "2 meses", "1 ano"... a partir da data de cadastro. */
   get tempoComoMembro(): string {
-    // O backend manda "dd/MM/yyyy HH:mm:ss", que o new Date() não entende (dava NaN)
-    const criacao = lerDataBr(this.usuario()?.creationDate);
+    const criacao = lerDataHora(this.usuario()?.creationDate);
     if (!criacao) return '—';
     const dias = Math.max(0, Math.floor((Date.now() - criacao.getTime()) / 86_400_000));
     if (dias < 1) return 'hoje';

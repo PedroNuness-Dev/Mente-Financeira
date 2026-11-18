@@ -124,7 +124,7 @@ export class HomeComponent implements OnInit {
     (this.ultimas() ?? []).map((mov) => {
       const entrada = mov.movementType === 'ENTRADA';
       return {
-        id: mov.id,
+        id: mov.movementId,
         entrada,
         categoria: rotuloCategoria(mov.movementCategory),
         data: formatarDataCurta(mov.executionDate),

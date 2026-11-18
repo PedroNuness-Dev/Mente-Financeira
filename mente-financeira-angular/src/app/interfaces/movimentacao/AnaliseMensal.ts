@@ -1,6 +1,6 @@
 import { TipoMovimentacao } from './Movimentacao';
 
-/** MovementCategoryPercentageDTOResponse do backend. */
+/** PercentageMovementCategory do backend. */
 export interface CategoriaAnalise {
   category: string;
   movementType: TipoMovimentacao;
@@ -9,15 +9,12 @@ export interface CategoriaAnalise {
   percentage: number;
 }
 
-/** MovementCategoryAnalysisDTOResponse do backend. */
+/** AnalysisMovementCategory do backend (GET /movements/analysis). */
 export interface AnaliseMensal {
   totalAmount: number;
   income: number;
   withdrawal: number;
   /** null quando o usuário ainda não criou a carteira. */
   currentBalance: number | null;
-  analyzedMonth: string;
-  analyzedYear: number;
-  analysisDate: string;
   categoryBreakdown: CategoriaAnalise[];
 }
