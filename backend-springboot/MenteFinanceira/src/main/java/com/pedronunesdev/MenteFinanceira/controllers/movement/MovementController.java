@@ -31,7 +31,7 @@ public class MovementController {
     public ResponseEntity<PagedModel<MovementResponse>> findMovementHistory(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate initialDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate finalDate,
-            @PageableDefault(size = 20, sort = "executionDate", direction = Sort.Direction.ASC) Pageable pageable){
+            @PageableDefault(size = 20, sort = "executionDate", direction = Sort.Direction.DESC) Pageable pageable){
 
         Page<MovementResponse> movementHistory = movementService.findMovementHistory(initialDate,finalDate,pageable);
 
@@ -40,8 +40,8 @@ public class MovementController {
 
     @GetMapping("/analysis")
     public ResponseEntity<AnalysisMovementCategory> findPercentagesByMovementCategory(
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate initialDate,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate finalDate){
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate initialDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate finalDate){
 
         AnalysisMovementCategory response = movementService.analyzeMovementsByMonth(initialDate, finalDate);
 

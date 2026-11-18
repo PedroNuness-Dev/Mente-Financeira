@@ -18,12 +18,19 @@ public interface MovementRepository extends JpaRepository<Movement,Long> {
     WHERE m.wallet.user.id = :id
     AND m.executionDate >= :start
     AND m.executionDate < :end
-    ORDER BY m.executionDate DESC
 """)
-    Page<Movement> movementHistory(
+    Page<Movement> findMovementsByDate(
             @Param("id") Long userId,
             @Param("start") LocalDateTime start,
             @Param("end") LocalDateTime end,
+            Pageable pageable);
+
+    @Query("""
+    SELECT m FROM Movement m
+    WHERE m.wallet.user.id = :id
+""")
+    Page<Movement> findAllMovementsByUser(
+            @Param("id") Long userId,
             Pageable pageable);
 
     @Query("""
@@ -33,7 +40,8 @@ public interface MovementRepository extends JpaRepository<Movement,Long> {
         SUM(m.movedAmount)
     FROM Movement m
     WHERE m.wallet.user.id = :id
-    AND m.executionDate BETWEEN :firstDay AND :lastDay
+    AND m.executionDate >= :firstDay
+    AND m.executionDate < :lastDay
     GROUP BY m.movementCategory, m.movementType
     ORDER BY SUM(m.movedAmount) DESC
 """)
