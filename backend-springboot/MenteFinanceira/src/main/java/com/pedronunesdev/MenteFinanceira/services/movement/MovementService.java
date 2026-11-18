@@ -3,15 +3,15 @@ package com.pedronunesdev.MenteFinanceira.services.movement;
 import com.pedronunesdev.MenteFinanceira.domain.movement.Movement;
 import com.pedronunesdev.MenteFinanceira.domain.wallet.Wallet;
 import com.pedronunesdev.MenteFinanceira.dto.movement.AnalysisMovementCategory;
-import com.pedronunesdev.MenteFinanceira.dto.movement.TotalByCategory;
 import com.pedronunesdev.MenteFinanceira.dto.movement.MovementResponse;
 import com.pedronunesdev.MenteFinanceira.dto.movement.PercentageMovementCategory;
+import com.pedronunesdev.MenteFinanceira.dto.movement.TotalByCategory;
 import com.pedronunesdev.MenteFinanceira.enums.movement.MovementCategory;
 import com.pedronunesdev.MenteFinanceira.enums.movement.MovementType;
 import com.pedronunesdev.MenteFinanceira.mappers.movement.MovementMapper;
 import com.pedronunesdev.MenteFinanceira.repositories.movement.MovementRepository;
-import com.pedronunesdev.MenteFinanceira.repositories.wallet.WalletRepository;
 import com.pedronunesdev.MenteFinanceira.services.auth.AuthenticationService;
+import com.pedronunesdev.MenteFinanceira.services.wallet.WalletService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -32,8 +32,8 @@ public class MovementService {
 
     private final MovementRepository movementRepository;
     private final AuthenticationService authenticationService;
-    private final WalletRepository walletRepository;
     private final MovementMapper movementMapper;
+    private final WalletService walletService;
 
     private static final ZoneId ZONE_ID = ZoneId.of("America/Recife");
 
@@ -122,7 +122,7 @@ public class MovementService {
         log.debug("Totals calculated. userId={}, overall={}, income={}, withdrawal={}",
                 userId, grandTotal, totalIncome, totalWithdrawal);
 
-        BigDecimal currentBalance = walletRepository.checkBalance(userId);
+        BigDecimal userBalance = walletService.getUserBalance().balance();
 
         List<PercentageMovementCategory> categoryPercentages = categoryTotals.stream()
                 .map(total -> {
@@ -157,7 +157,7 @@ public class MovementService {
                 grandTotal,
                 totalIncome,
                 totalWithdrawal,
-                currentBalance,
+                userBalance,
                 categoryPercentages
         );
     }

@@ -140,7 +140,7 @@ public class WalletService {
         );
     }
 
-    public BalanceResponseDTO checkBalance(){
+    public BalanceResponse getUserBalance(){
 
         Long userId = authenticationService.extractAuthenticatedUserId();
 
@@ -150,7 +150,7 @@ public class WalletService {
 
         log.info("Balance checked: {}. userId={}", foundBalance, userId);
 
-        return new BalanceResponseDTO(foundBalance);
+        return new BalanceResponse(foundBalance);
     }
 
     public WalletCheckRequest walletCheckExist(){

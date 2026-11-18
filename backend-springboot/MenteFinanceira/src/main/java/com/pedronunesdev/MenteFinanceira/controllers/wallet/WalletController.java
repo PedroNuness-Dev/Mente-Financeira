@@ -42,9 +42,9 @@ public class WalletController {
     }
 
     @GetMapping("/balance")
-    public ResponseEntity<BalanceResponseDTO> checkBalance(){
+    public ResponseEntity<BalanceResponse> checkBalance(){
 
-        BalanceResponseDTO response = walletService.checkBalance();
+        BalanceResponse response = walletService.getUserBalance();
 
         return ResponseEntity.ok(response);
     }

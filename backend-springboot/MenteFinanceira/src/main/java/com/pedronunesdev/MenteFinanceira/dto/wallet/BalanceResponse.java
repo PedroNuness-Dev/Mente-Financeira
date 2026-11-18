@@ -2,7 +2,7 @@ package com.pedronunesdev.MenteFinanceira.dto.wallet;
 
 import java.math.BigDecimal;
 
-public record BalanceResponseDTO(
+public record BalanceResponse(
         BigDecimal balance
 ) {
 }
