@@ -22,7 +22,7 @@ public class Movement {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "movement_id")
-    private Long id;
+    private Long movementId;
 
     @Column(name = "description")
     private String description;

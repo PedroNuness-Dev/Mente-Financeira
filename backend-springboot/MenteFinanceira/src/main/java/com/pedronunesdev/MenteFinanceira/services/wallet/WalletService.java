@@ -2,7 +2,7 @@ package com.pedronunesdev.MenteFinanceira.services.wallet;
 
 import com.pedronunesdev.MenteFinanceira.domain.user.User;
 import com.pedronunesdev.MenteFinanceira.domain.wallet.Wallet;
-import com.pedronunesdev.MenteFinanceira.dto.movement.MovementDTOResponse;
+import com.pedronunesdev.MenteFinanceira.dto.movement.MovementResponse;
 import com.pedronunesdev.MenteFinanceira.dto.wallet.*;
 import com.pedronunesdev.MenteFinanceira.enums.movement.MovementType;
 import com.pedronunesdev.MenteFinanceira.exception.ResourceNotFoundException;
@@ -49,7 +49,7 @@ public class WalletService {
 
         log.debug("Wallet saved. walletId={}, userId={}", walletToSave.getWalletId(), user.getId());
 
-        MovementDTOResponse movementDTOResponse =
+        MovementResponse movementResponse =
                 movementService.registerMovement(
                         walletToSave.getBalance(),
                         "Depósito inicial",
@@ -59,12 +59,12 @@ public class WalletService {
                 );
 
         log.info("Wallet registered successfully. walletId={}, userId={}, movementId={}",
-                walletToSave.getWalletId(), user.getId(), movementDTOResponse.id());
+                walletToSave.getWalletId(), user.getId(), movementResponse.movementId());
 
         return new WalletResponseDTO(
                 walletToSave.getWalletId(),
                 walletToSave.getBalance(),
-                movementDTOResponse
+                movementResponse
         );
     }
 
@@ -85,7 +85,7 @@ public class WalletService {
         wallet.deposit(request.depositAmount());
         walletRepository.save(wallet);
 
-        MovementDTOResponse movementDTOResponse =
+        MovementResponse movementResponse =
                 movementService.registerMovement(
                         request.depositAmount(),
                         request.description(),
@@ -95,12 +95,12 @@ public class WalletService {
                 );
 
         log.info("Deposit completed successfully. walletId={}, userId={}, movementId={}",
-                wallet.getWalletId(), userId, movementDTOResponse.id());
+                wallet.getWalletId(), userId, movementResponse.movementId());
 
         return new WalletResponseDTO(
                 wallet.getWalletId(),
                 wallet.getBalance(),
-                movementDTOResponse
+                movementResponse
         );
     }
 
@@ -121,7 +121,7 @@ public class WalletService {
         wallet.withdraw(request.withdrawalAmount());
         walletRepository.save(wallet);
 
-        MovementDTOResponse movementDTOResponse =
+        MovementResponse movementResponse =
                 movementService.registerMovement(
                         request.withdrawalAmount(),
                         request.description(),
@@ -131,12 +131,12 @@ public class WalletService {
                 );
 
         log.info("Withdrawal completed successfully. walletId={}, userId={}, movementId={}",
-                wallet.getWalletId(), userId, movementDTOResponse.id());
+                wallet.getWalletId(), userId, movementResponse.movementId());
 
         return new WalletResponseDTO(
                 wallet.getWalletId(),
                 wallet.getBalance(),
-                movementDTOResponse
+                movementResponse
         );
     }
 

@@ -1,8 +1,7 @@
 package com.pedronunesdev.MenteFinanceira.repositories.movement;
 
-import com.pedronunesdev.MenteFinanceira.dto.movement.CategoryTotalDTO;
 import com.pedronunesdev.MenteFinanceira.domain.movement.Movement;
-import com.pedronunesdev.MenteFinanceira.dto.movement.MovementDTOResponse;
+import com.pedronunesdev.MenteFinanceira.dto.movement.CategoryTotalDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,9 +16,15 @@ public interface MovementRepository extends JpaRepository<Movement,Long> {
     @Query("""
     SELECT m FROM Movement m
     WHERE m.wallet.user.id = :id
+    AND m.executionDate >= :start
+    AND m.executionDate < :end
     ORDER BY m.executionDate DESC
 """)
-    Page<MovementDTOResponse> movementHistory(@Param("id") Long userId, Pageable pageable);
+    Page<Movement> movementHistory(
+            @Param("id") Long userId,
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end,
+            Pageable pageable);
 
     @Query("""
     SELECT

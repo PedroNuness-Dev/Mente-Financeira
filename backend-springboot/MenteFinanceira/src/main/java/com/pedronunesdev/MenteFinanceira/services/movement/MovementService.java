@@ -5,9 +5,10 @@ import com.pedronunesdev.MenteFinanceira.domain.wallet.Wallet;
 import com.pedronunesdev.MenteFinanceira.dto.movement.CategoryTotalDTO;
 import com.pedronunesdev.MenteFinanceira.dto.movement.MovementCategoryAnalysisDTOResponse;
 import com.pedronunesdev.MenteFinanceira.dto.movement.MovementCategoryPercentageDTOResponse;
-import com.pedronunesdev.MenteFinanceira.dto.movement.MovementDTOResponse;
+import com.pedronunesdev.MenteFinanceira.dto.movement.MovementResponse;
 import com.pedronunesdev.MenteFinanceira.enums.movement.MovementCategory;
 import com.pedronunesdev.MenteFinanceira.enums.movement.MovementType;
+import com.pedronunesdev.MenteFinanceira.mappers.movement.MovementMapper;
 import com.pedronunesdev.MenteFinanceira.repositories.movement.MovementRepository;
 import com.pedronunesdev.MenteFinanceira.repositories.wallet.WalletRepository;
 import com.pedronunesdev.MenteFinanceira.services.auth.AuthenticationService;
@@ -19,10 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.Year;
-import java.time.YearMonth;
+import java.time.*;
 import java.time.format.TextStyle;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
@@ -36,9 +34,12 @@ public class MovementService {
     private final MovementRepository movementRepository;
     private final AuthenticationService authenticationService;
     private final WalletRepository walletRepository;
+    private final MovementMapper movementMapper;
+
+    private static final ZoneId ZONE_ID = ZoneId.of("America/Recife");
 
     // Method consumed by WalletService, since a movement is only registered together with some action on the Wallet
-    public MovementDTOResponse registerMovement(
+    public MovementResponse registerMovement(
             BigDecimal movedAmount,
             String description,
             MovementType movementType,
@@ -62,10 +63,10 @@ public class MovementService {
         Movement savedMovement = movementRepository.save(movementToSave);
 
         log.info("Movement registered successfully. movementId={}, walletId={}",
-                savedMovement.getId(), wallet.getWalletId());
+                savedMovement.getMovementId(), wallet.getWalletId());
 
-        return new MovementDTOResponse(
-                savedMovement.getId(),
+        return new MovementResponse(
+                savedMovement.getMovementId(),
                 savedMovement.getMovedAmount(),
                 savedMovement.getExecutionDate(),
                 savedMovement.getMovementType(),
@@ -73,19 +74,29 @@ public class MovementService {
         );
     }
 
-    public Page<MovementDTOResponse> findMovementHistory(Pageable pageable){
+    public Page<MovementResponse> findMovementHistory(LocalDate initialDate, LocalDate finalDate, Pageable pageable){
+
+        LocalDate initialDateFormat = initialDate != null ? initialDate : (finalDate != null ? finalDate : getLocalDateNowWithZoneId());
+        LocalDate finalDateFormat = finalDate != null ? finalDate : initialDateFormat;
+
+        if (initialDateFormat.isAfter(finalDateFormat)){
+            throw new IllegalArgumentException("Data inicial não pode ser posterior a data final para busca");
+        }
+
+        LocalDateTime start = initialDateFormat.atStartOfDay();
+        LocalDateTime end = finalDateFormat.plusDays(1).atStartOfDay();
 
         Long userId = authenticationService.extractAuthenticatedUserId();
 
         log.info("Fetching movement history. userId={}, page={}, size={}",
                 userId, pageable.getPageNumber(), pageable.getPageSize());
 
-        Page<MovementDTOResponse> page = movementRepository.movementHistory(userId, pageable);
+        Page<Movement> movements = movementRepository.movementHistory(userId, start, end, pageable);
 
         log.info("History returned. userId={}, recordsOnPage={}, totalRecords={}",
-                userId, page.getNumberOfElements(), page.getTotalElements());
+                userId, movements.getNumberOfElements(), movements.getTotalElements());
 
-        return page;
+        return movements.map(movementMapper::toDto);
     }
 
     public MovementCategoryAnalysisDTOResponse analyzeMovementsByMonth(Integer month, Integer year){
@@ -213,5 +224,9 @@ public class MovementService {
                     year, userCreationYear, Year.now().getValue());
             throw new IllegalArgumentException("Invalid year for search: the year cannot be in the future or before the user's creation date.");
         }
+    }
+
+    private LocalDate getLocalDateNowWithZoneId(){
+        return LocalDate.now(ZONE_ID);
     }
 }
