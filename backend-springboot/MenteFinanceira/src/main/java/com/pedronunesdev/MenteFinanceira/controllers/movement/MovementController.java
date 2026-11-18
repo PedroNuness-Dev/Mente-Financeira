@@ -1,6 +1,6 @@
 package com.pedronunesdev.MenteFinanceira.controllers.movement;
 
-import com.pedronunesdev.MenteFinanceira.dto.movement.MovementCategoryAnalysisDTOResponse;
+import com.pedronunesdev.MenteFinanceira.dto.movement.AnalysisMovementCategory;
 import com.pedronunesdev.MenteFinanceira.dto.movement.MovementResponse;
 import com.pedronunesdev.MenteFinanceira.services.movement.MovementService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -12,7 +12,10 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedModel;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
 
@@ -35,11 +38,12 @@ public class MovementController {
         return ResponseEntity.ok(new PagedModel<>(movementHistory));
     }
 
-    @GetMapping("/{month}/{year}")
-    public ResponseEntity<MovementCategoryAnalysisDTOResponse> findPercentagesByMovementCategory(
-            @PathVariable Integer month, @PathVariable Integer year){
+    @GetMapping("/analysis")
+    public ResponseEntity<AnalysisMovementCategory> findPercentagesByMovementCategory(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate initialDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate finalDate){
 
-        MovementCategoryAnalysisDTOResponse response = movementService.analyzeMovementsByMonth(month, year);
+        AnalysisMovementCategory response = movementService.analyzeMovementsByMonth(initialDate, finalDate);
 
         return ResponseEntity.ok(response);
     }

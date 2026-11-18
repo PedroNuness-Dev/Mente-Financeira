@@ -2,10 +2,10 @@ package com.pedronunesdev.MenteFinanceira.services.movement;
 
 import com.pedronunesdev.MenteFinanceira.domain.movement.Movement;
 import com.pedronunesdev.MenteFinanceira.domain.wallet.Wallet;
+import com.pedronunesdev.MenteFinanceira.dto.movement.AnalysisMovementCategory;
 import com.pedronunesdev.MenteFinanceira.dto.movement.CategoryTotalDTO;
-import com.pedronunesdev.MenteFinanceira.dto.movement.MovementCategoryAnalysisDTOResponse;
-import com.pedronunesdev.MenteFinanceira.dto.movement.MovementCategoryPercentageDTOResponse;
 import com.pedronunesdev.MenteFinanceira.dto.movement.MovementResponse;
+import com.pedronunesdev.MenteFinanceira.dto.movement.PercentageMovementCategory;
 import com.pedronunesdev.MenteFinanceira.enums.movement.MovementCategory;
 import com.pedronunesdev.MenteFinanceira.enums.movement.MovementType;
 import com.pedronunesdev.MenteFinanceira.mappers.movement.MovementMapper;
@@ -20,11 +20,10 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.*;
-import java.time.format.TextStyle;
-import java.time.temporal.TemporalAdjusters;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
-import java.util.Locale;
 
 @Service
 @RequiredArgsConstructor
@@ -76,22 +75,19 @@ public class MovementService {
 
     public Page<MovementResponse> findMovementHistory(LocalDate initialDate, LocalDate finalDate, Pageable pageable){
 
-        LocalDate initialDateFormat = initialDate != null ? initialDate : (finalDate != null ? finalDate : getLocalDateNowWithZoneId());
-        LocalDate finalDateFormat = finalDate != null ? finalDate : initialDateFormat;
+        LocalDateTime initialDateFormatWithTime = formatInitialDate(initialDate);
+        LocalDateTime finalDateFormatWithTime = formatFinalDate(finalDate);
 
-        if (initialDateFormat.isAfter(finalDateFormat)){
+        if (initialDateFormatWithTime.isAfter(finalDateFormatWithTime)){
             throw new IllegalArgumentException("Data inicial não pode ser posterior a data final para busca");
         }
-
-        LocalDateTime start = initialDateFormat.atStartOfDay();
-        LocalDateTime end = finalDateFormat.plusDays(1).atStartOfDay();
 
         Long userId = authenticationService.extractAuthenticatedUserId();
 
         log.info("Fetching movement history. userId={}, page={}, size={}",
                 userId, pageable.getPageNumber(), pageable.getPageSize());
 
-        Page<Movement> movements = movementRepository.movementHistory(userId, start, end, pageable);
+        Page<Movement> movements = movementRepository.movementHistory(userId, initialDateFormatWithTime, finalDateFormatWithTime, pageable);
 
         log.info("History returned. userId={}, recordsOnPage={}, totalRecords={}",
                 userId, movements.getNumberOfElements(), movements.getTotalElements());
@@ -99,28 +95,24 @@ public class MovementService {
         return movements.map(movementMapper::toDto);
     }
 
-    public MovementCategoryAnalysisDTOResponse analyzeMovementsByMonth(Integer month, Integer year){
+    public AnalysisMovementCategory analyzeMovementsByMonth(LocalDate initialDate, LocalDate finalDate){
 
-        log.info("Starting movement analysis. month={}, year={}", month, year);
+        LocalDateTime initialDateFormatWithTime = formatInitialDate(initialDate);
+        LocalDateTime finalDateFormatWithTime = formatFinalDate(finalDate);
 
-        validatePeriod(month, year);
-
-        LocalDateTime firstDay = LocalDateTime.of(year, month, 1, 0, 0);
-        LocalDateTime lastDay = firstDay.with(TemporalAdjusters.lastDayOfMonth()).with(LocalTime.MAX);
-
-        String currentMonthName = firstDay.getMonth().getDisplayName(TextStyle.FULL, Locale.of("pt", "BR"));
-
-        LocalDateTime analysisDate = LocalDateTime.now();
+        if (initialDateFormatWithTime.isAfter(finalDateFormatWithTime)){
+            throw new IllegalArgumentException("Data inicial não pode ser posterior a data final para busca");
+        }
 
         Long userId = authenticationService.extractAuthenticatedUserId();
 
         List<CategoryTotalDTO> categoryTotals =
-                movementRepository.totalByCategory(userId, firstDay, lastDay);
+                movementRepository.totalByCategory(userId, initialDateFormatWithTime, finalDateFormatWithTime);
 
         log.info("Categories found in query: {}", categoryTotals.size());
 
         if (categoryTotals.isEmpty()) {
-            log.info("No movements found. userId={}, period={}/{}", userId, month, year);
+            log.info("No movements found. userId={}, period={}/{}", userId, initialDateFormatWithTime, finalDateFormatWithTime);
         }
 
         BigDecimal grandTotal = sumTotals(categoryTotals, null);
@@ -132,46 +124,52 @@ public class MovementService {
 
         BigDecimal currentBalance = walletRepository.checkBalance(userId);
 
-        List<MovementCategoryPercentageDTOResponse> categoryPercentages = categoryTotals.stream()
-                .map(totalDTO -> {
+        List<PercentageMovementCategory> categoryPercentages = categoryTotals.stream()
+                .map(total -> {
 
-                    BigDecimal totalForType = totalDTO.movementType() == MovementType.RETIRADA
+                    BigDecimal totalForType = total.movementType() == MovementType.RETIRADA
                             ? totalWithdrawal
                             : totalIncome;
 
                     BigDecimal percentage;
+
                     if (totalForType.compareTo(BigDecimal.ZERO) == 0) {
                         log.warn("Total for type {} is zero; percentage for category {} set to 0. userId={}",
-                                totalDTO.movementType(), totalDTO.category(), userId);
+                                total.movementType(), total.category(), userId);
                         percentage = BigDecimal.ZERO;
                     } else {
-                        percentage = totalDTO.totalAmount()
+                        percentage = total.totalAmount()
                                 .multiply(BigDecimal.valueOf(100))
                                 .divide(totalForType, 2, RoundingMode.HALF_UP);
                     }
 
-                    return new MovementCategoryPercentageDTOResponse(
-                            totalDTO.category(),
-                            totalDTO.movementType(),
-                            totalDTO.totalAmount(),
+                    return new PercentageMovementCategory(
+                            total.category(),
+                            total.movementType(),
+                            total.totalAmount(),
                             percentage
                     );
                 })
                 .toList();
 
-        log.info("Analysis completed. userId={}, period={}/{}, categories={}",
-                userId, month, year, categoryPercentages.size());
 
-        return new MovementCategoryAnalysisDTOResponse(
+        return new AnalysisMovementCategory(
                 grandTotal,
                 totalIncome,
                 totalWithdrawal,
                 currentBalance,
-                currentMonthName,
-                year,
-                analysisDate,
                 categoryPercentages
         );
+    }
+
+    private LocalDateTime formatInitialDate(LocalDate initialDate){
+        LocalDate initialDateFormat = initialDate != null ? initialDate : getLocalDateNowWithZoneId();
+        return initialDateFormat.atStartOfDay();
+    }
+
+    private LocalDateTime formatFinalDate(LocalDate finalDate){
+        LocalDate finalDateFormat = finalDate != null ? finalDate : getLocalDateNowWithZoneId();
+        return finalDateFormat.plusDays(1).atStartOfDay();
     }
 
     private BigDecimal sumTotals(List<CategoryTotalDTO> categoryTotals, MovementType movementType){
@@ -187,42 +185,6 @@ public class MovementService {
                     .stream()
                     .map(CategoryTotalDTO::totalAmount)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
-        }
-    }
-
-    private void validatePeriod(Integer month, Integer year){
-
-        validateMonth(month);
-        validateYear(year);
-
-        YearMonth requestedPeriod = YearMonth.of(year, month);
-        if (requestedPeriod.isAfter(YearMonth.now())) {
-            log.warn("Requested period is in the future: {}/{}", month, year);
-            throw new IllegalArgumentException("The requested period is in the future.");
-        }
-
-        log.debug("Period validated: {}/{}", month, year);
-    }
-
-    private void validateMonth(Integer month){
-        if (month == null || month < 1 || month > 12) {
-            log.warn("Invalid month received: {}", month);
-            throw new IllegalArgumentException("Invalid month. The value must be between 1 and 12.");
-        }
-    }
-
-    private void validateYear(Integer year){
-
-        int userCreationYear = authenticationService.extractAuthenticatedUserCreationYear();
-
-        if (year == null){
-            log.warn("Null year received in movement search");
-            throw new IllegalArgumentException("The year for the search cannot be null");
-        }
-        if (year < userCreationYear || year > Year.now().getValue()){
-            log.warn("Year outside allowed range. year={}, userCreationYear={}, currentYear={}",
-                    year, userCreationYear, Year.now().getValue());
-            throw new IllegalArgumentException("Invalid year for search: the year cannot be in the future or before the user's creation date.");
         }
     }
 
