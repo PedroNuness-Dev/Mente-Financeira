@@ -215,9 +215,9 @@ public class MovementService {
 
     private void validatePeriodDate(LocalDate initialDate, LocalDate finalDate){
         if (initialDate.isAfter(finalDate)){
-            log.warn("Período inválido no histórico: data inicial posterior à final. inicio={}, fim={}",
+            log.warn("Data inicial posterior à final. inicio={}, fim={}",
                     initialDate, finalDate);
-            throw new IllegalArgumentException("Data inicial não pode ser posterior a data final para busca");
+            throw new IllegalArgumentException("Data inicial não pode ser posterior à data final para busca");
         }
     }
 }
